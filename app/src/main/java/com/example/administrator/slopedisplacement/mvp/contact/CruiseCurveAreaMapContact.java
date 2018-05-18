@@ -3,6 +3,7 @@ package com.example.administrator.slopedisplacement.mvp.contact;
 
 import com.example.administrator.slopedisplacement.bean.AreaMapBean;
 import com.example.administrator.slopedisplacement.bean.json.GetSchemeMonitorListLogJson;
+import com.example.administrator.slopedisplacement.http.HttpResponse;
 import com.example.administrator.slopedisplacement.mvp.IView;
 
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.List;
 
 public class CruiseCurveAreaMapContact {
     public interface View extends IView {
-        void onGetNewSchemeMonitorChartsByDateTopSuccess(List<AreaMapBean> areaMapBeanList);
+        void onGetNewSchemeMonitorChartsByDateTopSuccess(HttpResponse<List<AreaMapBean>> json);
 
         void onGetNewSchemeMonitorChartsByDateTopFail(String msg);
     }

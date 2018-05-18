@@ -75,7 +75,7 @@
             android:background="@null"
             android:ems="10"
             android:hint="请输入密码"
-            android:inputType="textPersonName"
+            android:inputType="textPassword"
             android:textColor="#58befc"
             android:textColorHint="#a6ddff"
             android:textSize="@dimen/y36" />
@@ -91,7 +91,7 @@
         android:id="@+id/cbSavePassWord"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="记住密码"
+        android:text="记住账号密码"
         android:layout_below="@+id/relativeLayout3"
         android:layout_alignRight="@+id/relativeLayout3"
         android:layout_alignEnd="@+id/relativeLayout3"

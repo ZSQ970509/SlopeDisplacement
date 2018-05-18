@@ -93,4 +93,13 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">@dimen/text_size_data</item>
     </style>
+
+    <style name="TvOnclickDataStyle">
+        <item name="android:gravity">center</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/data_btn_text_size</item>
+        <item name="android:background">@color/white</item>
+        <item name="android:clickable">true</item>
+    </style>
 </resources>

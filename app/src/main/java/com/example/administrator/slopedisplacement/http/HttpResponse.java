@@ -25,20 +25,19 @@ public class HttpResponse<T> {
      */
     @SerializedName("data")
     private T data;
-
-    /**
-     * 是否成功(这里约定1)
-     */
-    public boolean isSuccess() {
-        return code == ErrorType.SUCCESS ? true : false;
-    }
-
     public String getMsg() {
         return msg;
     }
 
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
     public int getCode() {
         return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
     }
 
     public T getData() {

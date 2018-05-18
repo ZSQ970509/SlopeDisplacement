@@ -1,6 +1,7 @@
 package com.example.administrator.slopedisplacement.activity;
 
 import android.content.Intent;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -55,8 +56,8 @@ public class SelectProjectActivity extends BaseMvpActivity<SelectProjectPresente
         rvProject.setLayoutManager(new LinearLayoutManager(this));
         selectProjectAdapter = new SelectProjectAdapter(R.layout.item_select_project,dataList);
         rvProject.setAdapter(selectProjectAdapter);
+        rvProject.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL));
         selectProjectAdapter.setLoadMoreView(new CustomLoadMoreView());
-
         selectProjectAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
             @Override public void onLoadMoreRequested() {
                 rvProject.postDelayed(new Runnable() {

@@ -18,7 +18,7 @@ public class IVMS_8700_Bean implements Serializable{
     private String Cam_Dx_Puid;
     private String camId;
     private String camName;
-
+    private String mRtsp;
     private String camFlowState;
 
     public IVMS_8700_Bean() {
@@ -35,6 +35,15 @@ public class IVMS_8700_Bean implements Serializable{
         this.camId = camId;
         this.camName = camName;
         this.camFlowState = camFlowState;
+
+    }
+
+    public String getmRtsp() {
+        return mRtsp;
+    }
+
+    public void setmRtsp(String mRtsp) {
+        this.mRtsp = mRtsp;
     }
 
     public String getCamFlowState() {

@@ -3,4 +3,6 @@
     <dimen name="margin">16dp</dimen>
     <dimen name="margin_small">10dp</dimen>
     <dimen name="text_size_data">16sp</dimen>
+    <dimen name="data_tv_text_size">16sp</dimen>
+    <dimen name="data_btn_text_size">17sp</dimen>
 </resources>

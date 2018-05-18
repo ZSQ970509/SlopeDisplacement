@@ -11,6 +11,7 @@ import com.example.administrator.slopedisplacement.bean.SchemeBean;
 import com.example.administrator.slopedisplacement.bean.json.GetDatSchemeAreaListJson;
 import com.example.administrator.slopedisplacement.bean.json.GetDatSchemeFixedListJson;
 import com.example.administrator.slopedisplacement.bean.json.GetSchemeAlarmJson;
+import com.example.administrator.slopedisplacement.bean.json.GetSchemeFixedChartsByDateTopJson;
 import com.example.administrator.slopedisplacement.bean.json.GetSchemeFixedListLogJson;
 import com.example.administrator.slopedisplacement.bean.json.GetSchemeMonitorListLogJson;
 import com.example.administrator.slopedisplacement.bean.json.GetSchemeMonitorLogJson;
@@ -26,7 +27,6 @@ import retrofit2.http.POST;
 
 
 /**
- * Created by GaoSheng on 2016/9/13.
  * 网络请求的接口都在这里
  */
 
@@ -116,4 +116,8 @@ public interface ApiService {
     @FormUrlEncoded
     @POST(UrlHelper.API + "GetNewSchemeMonitorChartsByDateTop ")
     Observable<HttpResponse<List<AreaMapBean>>> getNewSchemeMonitorChartsByDateTop(@Field("schemeID") String schemeID, @Field("areaID") String areaID, @Field("monitorID") String monitorID, @Field("timeType") int timeType, @Field("selDate") String selDate, @Field("uid") String uid);
+    //定点折线图
+    @FormUrlEncoded
+    @POST(UrlHelper.API + "GetSchemeFixedChartsByDateTop ")
+    Observable<HttpResponse<List<GetSchemeFixedChartsByDateTopJson>>> GetSchemeFixedChartsByDateTop(@Field("schemeID") String schemeID, @Field("fixedId") String fixedId, @Field("topNum") String topNum, @Field("timeType") int timeType, @Field("selDate") String selDate, @Field("uid") String uid);
 }

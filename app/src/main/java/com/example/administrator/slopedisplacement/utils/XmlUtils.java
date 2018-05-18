@@ -37,10 +37,12 @@ public class XmlUtils {
                         dataBean.setmPassword(parser.nextText());
                     } else if ("naming".equals(nodeName)) {
                         dataBean.setmSysCode(parser.nextText());
-                    }else if("camId".equals(nodeName)){
+                    } else if ("camId".equals(nodeName)) {
                         dataBean.setCamId(parser.nextText());
-                    }else if("camName".equals(nodeName)){
+                    } else if ("camName".equals(nodeName)) {
                         dataBean.setCamName(parser.nextText());
+                    } else if ("hikxml".equals(nodeName)) {
+                        dataBean.setmRtsp(parser.nextText());
                     }
                     break;
                 }

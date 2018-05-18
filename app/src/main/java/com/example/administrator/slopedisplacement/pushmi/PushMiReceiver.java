@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
-import com.example.administrator.slopedisplacement.MainActivity;
 import com.example.administrator.slopedisplacement.R;
 import com.example.administrator.slopedisplacement.activity.PlanLayoutOfPanoramaActivity;
 import com.example.administrator.slopedisplacement.bean.IVMS_8700_Bean;

@@ -37,6 +37,7 @@ public class HuXinUtil {
         GeyeUserLogin.getInstance(context).userLogin(userName, Long.valueOf(passWord),
                 350100, callBack);
     }
+
     public static void initVideo(SurfingScenePlayer splay, GLSurfaceView glv, String puId, String userName, onPlayListener listener) {
         glv.setVisibility(View.VISIBLE);
         splay.init(glv);
@@ -46,5 +47,14 @@ public class HuXinUtil {
 
         splay.playerVideoByPuId("086591-1435552375", 2, "350100", 2, 1, userName, 1);
         //splay.playerVideoByPuId(puId, 2, "350100", 2, 1, userName, 1);
+    }
+
+    public static void playRtsp(SurfingScenePlayer splay, GLSurfaceView glv, String rtsp, onPlayListener listener) {
+        glv.setVisibility(View.VISIBLE);
+        splay.init(glv);
+        splay.getProgressValue();
+        splay.setPlayListener(listener);
+//        rtsp = "rtsp://admin:hckj1234@10.1.4.194:554/h264/ch1/main/av_stream";
+        splay.playVideo(rtsp, 1, 1);
     }
 }

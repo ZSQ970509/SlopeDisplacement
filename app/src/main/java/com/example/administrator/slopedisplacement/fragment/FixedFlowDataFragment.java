@@ -48,7 +48,7 @@ public class FixedFlowDataFragment extends BaseMvpLazyFragment<FixedFlowDataPres
     private GetDatSchemeFixedListJson mFixedListJson;
 
     private List<GetSchemeFixedListLogJson.ListBean> mAdapterData = new ArrayList<>();
-    private int pageIndex = 0;//页数
+    private int pageIndex = 1;//页数
     private int pageSize = 15;//每页的数量
     private int pageSizeNum = 0;//数据的总数
     /**
@@ -75,11 +75,11 @@ public class FixedFlowDataFragment extends BaseMvpLazyFragment<FixedFlowDataPres
         return new FixedFlowDataPresenter();
     }
 
-    public static FixedFlowDataFragment newInstance(GetDatSchemeFixedListJson fixedListJson,String schemeId) {
+    public static FixedFlowDataFragment newInstance(GetDatSchemeFixedListJson fixedListJson, String schemeId) {
         FixedFlowDataFragment fixedFlowDataFragment = new FixedFlowDataFragment();
-        if(fixedListJson==null||fixedListJson.getList()==null||fixedListJson.getList().isEmpty()){
+        if (fixedListJson == null || fixedListJson.getList() == null || fixedListJson.getList().isEmpty()) {
             fixedFlowDataFragment.setDataEmpty();
-        }else {
+        } else {
             fixedFlowDataFragment.mFixedListJson = fixedListJson;
             fixedFlowDataFragment.mSchemeID = schemeId;
         }
@@ -93,17 +93,19 @@ public class FixedFlowDataFragment extends BaseMvpLazyFragment<FixedFlowDataPres
 
     @Override
     public void initView() {
+        if (mIsDataEmpty)
+            return;
         mAdapter = new FixedFlowDataAdapter(R.layout.item_fixed_flow_fata, mAdapterData);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.setLoadMoreView(new CustomLoadMoreView());
         //加载更多
         mAdapter.setOnLoadMoreListener(() -> {
-            if (pageIndex * pageSize > pageSizeNum) {
+            pageIndex++;
+            if (pageIndex > (pageSizeNum + pageSize - 1) / pageSize) {
                 showToast("已经是最后一页了");
                 mAdapter.loadMoreEnd();
             } else {
-                pageIndex++;
                 getFixedFlowData();
             }
         }, mRecyclerView);
@@ -138,8 +140,15 @@ public class FixedFlowDataFragment extends BaseMvpLazyFragment<FixedFlowDataPres
     }
 
     @Override
-    protected void lazyLoadDate() {
-        getFixedFlowData();
+    protected void lazyLoad() {
+        if (mIsFragmentVisible && mIsInitView && mIsFirstLazyLoad) {
+            mIsFirstLazyLoad = false;
+            if (mIsDataEmpty) {
+                showToast(R.string.view_empty);
+            } else {
+                getFixedFlowData();
+            }
+        }
     }
 
     /**
@@ -154,6 +163,7 @@ public class FixedFlowDataFragment extends BaseMvpLazyFragment<FixedFlowDataPres
     public void onGetSchemeFixedListLogSuccess(GetSchemeFixedListLogJson jsonData) {
         pageSizeNum = jsonData.getTotalCount();
         mAdapter.addData(jsonData.getList());
+        mAdapter.setTotalCount(jsonData.getTotalCount());
         if (mAdapter != null && mAdapter.isLoading())
             mAdapter.loadMoreComplete();
     }
@@ -167,7 +177,8 @@ public class FixedFlowDataFragment extends BaseMvpLazyFragment<FixedFlowDataPres
 
     @OnClick({R.id.btFixedFlowDataStart, R.id.btFixedFlowDataEnd, R.id.btFixedFlowDataSearch})
     void OnClick(View view) {
-        if(mIsDataEmpty){
+        if (mIsDataEmpty) {
+            showToast(R.string.view_empty);
             return;
         }
         switch (view.getId()) {
@@ -179,11 +190,12 @@ public class FixedFlowDataFragment extends BaseMvpLazyFragment<FixedFlowDataPres
                 break;
             case R.id.btFixedFlowDataSearch://搜索
                 //初始化数据
-                pageIndex = 0;
+                pageIndex = 1;
                 pageSizeNum = 0;
                 mSelectTimeStart = mTvFixedFlowDataStart.getText().toString();
                 mSelectTimeEnd = mTvFixedFlowDataEnd.getText().toString();
                 mAdapterData.clear();
+                mAdapter.setTotalCount(0);
                 mAdapter.setNewData(null);//重新开启下拉加载更多
                 getFixedFlowData();
                 break;

@@ -18,20 +18,26 @@ import java.util.List;
  */
 
 public class CruiseDataAdapter extends BaseItemDraggableAdapter<GetSchemeMonitorListLogJson.ListBean, BaseViewHolder> {
+    private int mTotalCount;
+
     public CruiseDataAdapter(int layoutResId, List<GetSchemeMonitorListLogJson.ListBean> data) {
         super(layoutResId, data);
     }
 
+    public void setTotalCount(int totalCount) {
+        mTotalCount = totalCount;
+    }
+
     @Override
     protected void convert(BaseViewHolder helper, GetSchemeMonitorListLogJson.ListBean item) {
-        helper.setText(R.id.tvItemCruiseDataId, item.getRecordID() + "")
+        helper.setText(R.id.tvItemCruiseDataId, mTotalCount - helper.getAdapterPosition() + "")
                 .setText(R.id.tvItemCruiseDataCreateTime, item.getCreateTime() + "")
                 .setText(R.id.tvItemCruiseDataAreaName, item.getAreaNmae() + "")
                 .setText(R.id.tvItemCruiseDataMonitorID, item.getMonitorID() + "")
-                .setText(R.id.tvItemCruiseDataNowShift, FormatUtils.format2(item.getNowShift()))
-                .setText(R.id.tvItemCruiseDataShift, FormatUtils.format2(item.getShift()))
-                .setText(R.id.tvItemCruiseDataAddShift, FormatUtils.format2(item.getAddShift()))
-                .setText(R.id.tvItemCruiseDataObd, FormatUtils.format5(item.getObd()));
+                .setText(R.id.tvItemCruiseDataNowShift, FormatUtils.round(item.getNowShift() * 1000))
+                .setText(R.id.tvItemCruiseDataShift, FormatUtils.round(item.getShift() * 1000))
+                .setText(R.id.tvItemCruiseDataAddShift, FormatUtils.round(item.getAddShift() * 1000))
+                .setText(R.id.tvItemCruiseDataObd, FormatUtils.format3(item.getObd()));
         helper.addOnClickListener(R.id.tvItemCruiseDataNowShift);
     }
 }

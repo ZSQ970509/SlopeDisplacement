@@ -1,9 +1,9 @@
 package com.example.administrator.slopedisplacement.base;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.StringRes;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,64 +20,87 @@ import butterknife.Unbinder;
  */
 
 public abstract class BaseLazyFragment extends RxFragment {
-    private Unbinder mUnbinder;
-    private View mParentView;
     private FragmentActivity mActivity;//防止使用getActivity()为空
-    // 标志位 标志已经初始化完成。
-    protected boolean mIsPrepared;
-    //标志位 fragment是否可见
-    protected boolean mIsVisible;
-    /**
-     * 数据是否为空
-     */
+    private Unbinder mUnbinder;
+    // Fragment是否已经绑定Layout和初始化视图
+    protected boolean mIsInitView = false;
+    // Fragment是否第一次懒加载
+    protected boolean mIsFirstLazyLoad = true;
+    // Fragment是否是可见
+    protected boolean mIsFragmentVisible = false;
+    //数据是否为空
     protected boolean mIsDataEmpty = false;
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle state) {
-        mParentView = inflater.inflate(getLayoutResId(), container, false);
-        mActivity = getSupportActivity();
-        return mParentView;
-    }
-
     /**
-     * 数据为空(不调用 initView()和lazyLoadDate())
+     * Fragment显示和隐藏时被调用
      */
-    public void setDataEmpty() {
-        this.mIsDataEmpty = true;
-    }
-
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        mUnbinder = ButterKnife.bind(this, view);
-        mIsPrepared = true;
-        lazyLoad();
-    }
-
-    /**
-     * 设置布局
-     *
-     * @return
-     */
-    @LayoutRes
-    public abstract int getLayoutResId();
-
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        mUnbinder.unbind();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (getUserVisibleHint()) {
+            onVisible();
+            mIsFragmentVisible = true;
+//            if (mIsInitView) {
+//                mIsFirstVisible = true;
+//            }
+            lazyLoad();
+        } else {
+            mIsFragmentVisible = false;
+            onInvisible();
+        }
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         this.mActivity = (FragmentActivity) activity;
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle state) {
+        View parentView = inflater.inflate(getLayoutResId(), container, false);
+        mActivity = getSupportActivity();
+        return parentView;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mUnbinder = ButterKnife.bind(this, view);
+        initView();
+        mIsInitView = true;
+        lazyLoad();
+    }
+
+    @LayoutRes
+    public abstract int getLayoutResId();
+
+    /**
+     * 初始化views(完成视图创建后，初始控件)
+     */
+    public abstract void initView();
+
+    /**
+     * 每次Fragment被显示时调用
+     */
+    protected void onVisible() {
+
+    }
+
+    /**
+     * 每次Fragment被隐藏时调用
+     */
+    protected void onInvisible() {
+    }
+
+    protected void lazyLoad() {
+    }
+
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mUnbinder.unbind();
     }
 
 
@@ -87,71 +110,15 @@ public abstract class BaseLazyFragment extends RxFragment {
         this.mActivity = null;
     }
 
+    /**
+     * 数据为空(不调用 initView()和lazyLoadDate())
+     */
+    public void setDataEmpty() {
+        this.mIsDataEmpty = true;
+    }
 
     public FragmentActivity getSupportActivity() {
         return super.getActivity();
-    }
-
-
-    public android.app.ActionBar getSupportActionBar() {
-        return getSupportActivity().getActionBar();
-    }
-
-
-    public Context getApplicationContext() {
-        return this.mActivity == null ? (getActivity() == null ?
-                null : getActivity().getApplicationContext()) : this.mActivity.getApplicationContext();
-    }
-
-
-    /**
-     * Fragment数据的懒加载
-     */
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if (getUserVisibleHint()) {
-            mIsVisible = true;
-            onVisible();
-        } else {
-            mIsVisible = false;
-            onInvisible();
-        }
-    }
-
-    /**
-     * fragment显示时才加载数据
-     */
-    protected void onVisible() {
-        lazyLoad();
-    }
-
-    /**
-     * fragment懒加载方法
-     */
-    protected void lazyLoad() {
-        if (!mIsPrepared || !mIsVisible) {
-            return;
-        }
-        if (!mIsDataEmpty) {
-            initView();
-            lazyLoadDate();
-            mIsPrepared = false;
-        }
-    }
-
-    /**
-     * 初始化views(完成视图创建后，初始控件)
-     */
-    public abstract void initView();
-
-    protected void lazyLoadDate() {
-    }
-
-    /**
-     * fragment隐藏
-     */
-    protected void onInvisible() {
     }
 
     /**
@@ -162,4 +129,21 @@ public abstract class BaseLazyFragment extends RxFragment {
     public void showToast(String msg) {
         Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
     }
+
+    public void showToast(@StringRes int resId) {
+        Toast.makeText(getActivity(), getString(resId), Toast.LENGTH_SHORT).show();
+    }
+    /*
+    tsetUserVisibleHin和Fragment的先后顺序
+    setUserVisibleHint(false)   (Fragment1)
+    setUserVisibleHint(false)   (Fragment2)
+    setUserVisibleHint(false)   (Fragment3)
+    setUserVisibleHint(true)    (Fragment1)
+    onAttach                    (Fragment1)
+    onCreateView                (Fragment1)
+    ....                        (Fragment1)
+    onAttach                    (Fragment2)
+    onCreateView                (Fragment2)
+    ...                         (Fragment2)
+    */
 }

@@ -1,32 +1,35 @@
 package com.example.administrator.slopedisplacement.fragment;
 
 import android.graphics.Color;
-import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.AdapterView;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.bigkoo.pickerview.TimePickerView;
-import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.classic.adapter.BaseAdapterHelper;
+import com.classic.adapter.CommonAdapter;
 import com.example.administrator.slopedisplacement.R;
-import com.example.administrator.slopedisplacement.adapter.CruiseDataAdapter;
-import com.example.administrator.slopedisplacement.base.BaseLazyFragment;
+import com.example.administrator.slopedisplacement.base.BaseMvpLazyFragment;
+import com.example.administrator.slopedisplacement.bean.json.GetDatSchemeFixedListJson;
+import com.example.administrator.slopedisplacement.bean.json.GetSchemeFixedChartsByDateTopJson;
+import com.example.administrator.slopedisplacement.db.UserInfoPref;
+import com.example.administrator.slopedisplacement.http.HttpResponse;
+import com.example.administrator.slopedisplacement.mvp.contact.FixedPointCurveAreaMapContact;
+import com.example.administrator.slopedisplacement.mvp.presenter.FixedPointCurveAreaMapPresenter;
+import com.example.administrator.slopedisplacement.type.ShiftData;
 import com.example.administrator.slopedisplacement.utils.FormatUtils;
-import com.example.administrator.slopedisplacement.utils.LineChartUtils;
+import com.example.administrator.slopedisplacement.utils.L;
 import com.example.administrator.slopedisplacement.utils.TimePickerUtils;
-import com.example.administrator.slopedisplacement.widget.CustomLoadMoreView;
+import com.example.administrator.slopedisplacement.utils.chart.ChartDataTypeEnum;
+import com.example.administrator.slopedisplacement.utils.chart.ChartUtils;
+import com.example.administrator.slopedisplacement.utils.chart.CustomAxisX;
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.highlight.Highlight;
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
-import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,149 +42,46 @@ import butterknife.OnClick;
  * 定点曲线区域图
  */
 
-public class FixedPointCurveAreaMapFragment extends BaseLazyFragment {
-    @BindView(R.id.lcAreaMap)
-    LineChart mChart;
+public class FixedPointCurveAreaMapFragment extends BaseMvpLazyFragment<FixedPointCurveAreaMapPresenter> implements FixedPointCurveAreaMapContact.View {
+    @BindView(R.id.tvFixedTime)
+    TextView tvFixedTime;
 
-    public static FixedPointCurveAreaMapFragment newInstance() {
+    @BindView(R.id.spnFixedPointData)
+    Spinner spnFixedPointData;
+    @BindView(R.id.spnFixedPointDataType)
+    Spinner spnFixedPointDataType;
+    @BindView(R.id.tvFixedMapName)
+    TextView tvFixedMapName;
+    @BindView(R.id.lcFixedPoint)
+    LineChart mChart;
+    @BindView(R.id.btnFixedTimeForDay)
+    TextView tvDay;
+    @BindView(R.id.btnFixedTimeForMonth)
+    TextView tvMonth;
+    @BindView(R.id.btnFixedTimeForYear)
+    TextView tvYear;
+    private CommonAdapter<GetDatSchemeFixedListJson.ListBean> mSpnAdapterData;
+    private CommonAdapter<String> mSpnAdapterDataType;
+    private int mTimeType = 2;
+    private String mSchemeId;
+    private GetDatSchemeFixedListJson mFixedListJson;
+    private List<GetSchemeFixedChartsByDateTopJson> mFixedChartData = new ArrayList<>();//折线图数据
+    private ShiftData mShiftData = new ShiftData(0);
+
+    public static FixedPointCurveAreaMapFragment newInstance(GetDatSchemeFixedListJson fixedListJson, String schemeId) {
         FixedPointCurveAreaMapFragment fixedPointCurveAreaMapFragment = new FixedPointCurveAreaMapFragment();
-//        cruiseDataFragment.mSchemeID = schemeID;
+        if (fixedListJson == null || fixedListJson.getList() == null || fixedListJson.getList().isEmpty()) {
+            fixedPointCurveAreaMapFragment.setDataEmpty();
+        } else {
+            fixedPointCurveAreaMapFragment.mSchemeId = schemeId;
+            fixedPointCurveAreaMapFragment.mFixedListJson = fixedListJson;
+        }
         return fixedPointCurveAreaMapFragment;
     }
 
-    // 设置显示的样式
-    void setupChart() {
-        //为图表设置一个选择监听器
-        mChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
-            @Override
-            public void onValueSelected(Entry entry, Highlight highlight) {
-                Log.i("Entry selected", entry.toString());
-
-                mChart.centerViewToAnimated(entry.getX(), entry.getY(), mChart.getData().getDataSetByIndex(highlight.getDataSetIndex())
-                        .getAxisDependency(), 500);
-            }
-
-            @Override
-            public void onNothingSelected() {
-                Log.i("Nothing selected", "Nothing selected.");
-            }
-        });
-
-        LineChartUtils.setLineInit(mChart);
-
-        // add data
-        setData(20, 30);
-        //使用指定的动画时间在x轴上动画显示图表。
-        mChart.animateX(2500);
-        // 获取Legend(图例)  （仅在设置数据后才可以）
-        LineChartUtils.setLegend(mChart.getLegend());
-        LineChartUtils.setXAxis(mChart.getXAxis());
-        LineChartUtils.setLeftYAxis(mChart.getAxisLeft(),200f,0f);
-        //右侧y轴设置为不使用
-        mChart.getAxisRight().setEnabled(false);
-//        rightAxis.set
-//        YAxis rightAxis = mChart.getAxisRight();
-////        rightAxis.setTypeface(mTfLight);
-//        rightAxis.setTextColor(Color.RED);
-//        rightAxis.setAxisMaximum(900);
-//        rightAxis.setAxisMinimum(-200);
-//        rightAxis.setDrawGridLines(false);
-//        //将此设置为true以绘制零线，而不管天气是否启用其他网格线。 默认值：false
-//        rightAxis.setDrawZeroLine(false);
-//        rightAxis.setGranularityEnabled(false);
-    }
-
-    private void setData(int count, float range) {
-
-        ArrayList<Entry> yVals1 = new ArrayList<Entry>();
-
-        for (int i = 0; i < count; i++) {
-            float mult = range / 2f;
-            float val = (float) (Math.random() * mult) + 50;
-            yVals1.add(new Entry(i, val));
-        }
-
-        ArrayList<Entry> yVals2 = new ArrayList<Entry>();
-
-        for (int i = 0; i < count - 1; i++) {
-            float mult = range;
-            float val = (float) (Math.random() * mult) + 450;
-            yVals2.add(new Entry(i, val));
-//            if(i == 10) {
-//                yVals2.add(new Entry(i, val + 50));
-//            }
-        }
-
-        ArrayList<Entry> yVals3 = new ArrayList<Entry>();
-
-        for (int i = 0; i < count; i++) {
-            float mult = range;
-            float val = (float) (Math.random() * mult) + 500;
-            yVals3.add(new Entry(i, val));
-        }
-
-        LineDataSet set1, set2, set3;
-
-        if (mChart.getData() != null &&
-                mChart.getData().getDataSetCount() > 0) {
-            set1 = (LineDataSet) mChart.getData().getDataSetByIndex(0);
-            set2 = (LineDataSet) mChart.getData().getDataSetByIndex(1);
-            set3 = (LineDataSet) mChart.getData().getDataSetByIndex(2);
-            set1.setValues(yVals1);
-            set2.setValues(yVals2);
-            set3.setValues(yVals3);
-            mChart.getData().notifyDataChanged();
-            mChart.notifyDataSetChanged();
-        } else {
-            // create a dataset and give it a type
-            set1 = new LineDataSet(yVals1, "DataSet 1");
-
-            set1.setAxisDependency(YAxis.AxisDependency.LEFT);
-            set1.setColor(ColorTemplate.getHoloBlue());
-            set1.setCircleColor(Color.WHITE);
-            set1.setLineWidth(2f);
-            set1.setCircleRadius(3f);
-            set1.setFillAlpha(65);
-            set1.setFillColor(ColorTemplate.getHoloBlue());
-            set1.setHighLightColor(Color.rgb(244, 117, 117));
-            set1.setDrawCircleHole(false);
-            //set1.setFillFormatter(new MyFillFormatter(0f));
-            //set1.setDrawHorizontalHighlightIndicator(false);
-            //set1.setVisible(false);
-            //set1.setCircleHoleColor(Color.WHITE);
-
-            // create a dataset and give it a type
-            set2 = new LineDataSet(yVals2, "DataSet 2");
-            set2.setAxisDependency(YAxis.AxisDependency.RIGHT);
-            set2.setColor(Color.RED);
-            set2.setCircleColor(Color.WHITE);
-            set2.setLineWidth(2f);
-            set2.setCircleRadius(3f);
-            set2.setFillAlpha(65);
-            set2.setFillColor(Color.RED);
-            set2.setDrawCircleHole(false);
-            set2.setHighLightColor(Color.rgb(244, 117, 117));
-            //set2.setFillFormatter(new MyFillFormatter(900f));
-
-            set3 = new LineDataSet(yVals3, "DataSet 3");
-            set3.setAxisDependency(YAxis.AxisDependency.RIGHT);
-            set3.setColor(Color.YELLOW);
-            set3.setCircleColor(Color.WHITE);
-            set3.setLineWidth(2f);
-            set3.setCircleRadius(3f);
-            set3.setFillAlpha(65);
-            set3.setFillColor(ColorTemplate.colorWithAlpha(Color.YELLOW, 200));
-            set3.setDrawCircleHole(false);
-            set3.setHighLightColor(Color.rgb(244, 117, 117));
-
-            // create a data object with the datasets
-            LineData data = new LineData(set1, set2, set3);
-            data.setValueTextColor(Color.WHITE);
-            data.setValueTextSize(9f);
-
-            // set data
-            mChart.setData(data);
-        }
+    @Override
+    protected FixedPointCurveAreaMapPresenter loadPresenter() {
+        return new FixedPointCurveAreaMapPresenter();
     }
 
     @Override
@@ -191,11 +91,174 @@ public class FixedPointCurveAreaMapFragment extends BaseLazyFragment {
 
     @Override
     public void initView() {
-        setupChart();
+        ChartUtils.initLineChart(mChart, this.getContext());
+        if (mIsDataEmpty)
+            return;
+        initSpnArea();
+        initSpnCruiseDataTypeMap();
+        //为图表设置一个选择监听器
+    }
+
+    /**
+     * 初始化定点的Spinner
+     */
+    private void initSpnArea() {
+        mSpnAdapterData = new CommonAdapter<GetDatSchemeFixedListJson.ListBean>(getActivity(), R.layout.item_spinner, mFixedListJson.getList()) {
+            @Override
+            public void onUpdate(BaseAdapterHelper helper, GetDatSchemeFixedListJson.ListBean item, int position) {
+                helper.setText(R.id.tvItemSpinner, item.getFixedName());
+            }
+        };
+
+        spnFixedPointData.setAdapter(mSpnAdapterData);
+        spnFixedPointData.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                refreshData();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+        if (mFixedListJson.getList() != null && mFixedListJson.getList().size() >= 0) {
+            spnFixedPointData.setSelection(0);
+        }
+        mSpnAdapterData.notifyDataSetChanged();
+    }
+
+    /**
+     * 初始化数据类型的spinner
+     */
+    private void initSpnCruiseDataTypeMap() {
+        ArrayList<String> dataType = new ArrayList<String>();
+        dataType.add("阶段位移");
+        dataType.add("累计位移");
+        dataType.add("单次位移");
+        dataType.add("距离");
+        mSpnAdapterDataType = new CommonAdapter<String>(getActivity(), R.layout.item_spinner, dataType) {
+            @Override
+            public void onUpdate(BaseAdapterHelper helper, String item, int position) {
+                helper.setText(R.id.tvItemSpinner, item);
+            }
+        };
+        spnFixedPointDataType.setAdapter(mSpnAdapterDataType);
+        spnFixedPointDataType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mShiftData.setPosition(spnFixedPointDataType.getSelectedItemPosition());
+                setChartData();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
     }
 
     @Override
-    protected void lazyLoadDate() {
+    protected void lazyLoad() {
+        if (mIsInitView) {
+            if (mIsFirstLazyLoad && mIsFragmentVisible) {//只在第一次懒加载&&视图为显示时执行
+                if (mIsDataEmpty) {
+                    showToast(R.string.view_empty);
+                } else {
+                    refreshData();
+                }
+                mIsFirstLazyLoad = false;
+            }
+        }
+    }
 
+    // 设置图表里的数据
+    private void setChartData() {
+        if (mFixedChartData == null || mFixedChartData.isEmpty() || mFixedChartData.size() < 3 || mFixedChartData.get(0).getTimeName() == null || mFixedChartData.get(0).getTimeName().isEmpty()) {
+            L.e("折线图的数据为空");
+            mChart.clear();
+            return;
+        }
+        // 添加线（数据）  （数据，位置，颜色，名称）
+        LineDataSet setData1 = ChartUtils.getLineDataSet(mChart, mShiftData.getShiftDataList(mFixedChartData.get(0)), 0, Color.RED, mFixedChartData.get(0).getName(), ChartDataTypeEnum.DATA1);
+        LineDataSet setData2 = ChartUtils.getLineDataSet(mChart, mFixedChartData.get(1).getData(), 1, Color.rgb(255, 215, 0), mFixedChartData.get(1).getName(), ChartDataTypeEnum.DATA2);
+        LineDataSet setData3 = ChartUtils.getLineDataSet(mChart, mFixedChartData.get(2).getData(), 2, Color.rgb(255, 215, 0), mFixedChartData.get(2).getName(), ChartDataTypeEnum.DATA3);
+        mChart.setData(new LineData(setData1, setData2, setData3));
+        // 获取Legend(图例)  （仅在设置数据后才可以）
+        ChartUtils.setLegend(mChart.getLegend());
+        ChartUtils.setLeftYAxis(mChart.getAxisLeft());
+        ChartUtils.setXAxis(mChart.getXAxis(), mFixedChartData.get(0).getTimeName());
+        //刷新图表
+        mChart.notifyDataSetChanged();
+        mChart.invalidate();
+    }
+
+    /**
+     * 刷新图表数据
+     */
+    private void refreshData() {
+        mPresenter.GetSchemeFixedChartsByDateTop(mSchemeId, mSpnAdapterData.getItem(spnFixedPointData.getSelectedItemPosition()).getFixedID() + ""
+                , mTimeType, tvFixedTime.getText().toString(), UserInfoPref.getUserId());
+    }
+
+    @Override
+    public void onGetSchemeFixedChartsByDateTopSuccess(HttpResponse<List<GetSchemeFixedChartsByDateTopJson>> json) {
+        mFixedChartData = json.getData();
+        setChartData();
+    }
+
+    @Override
+    public void onGetSchemeFixedChartsByDateTopFail(String msg) {
+        showMsg(msg);
+    }
+
+    @OnClick({R.id.btnFixedTimeForDay, R.id.btnFixedTimeForMonth, R.id.btnFixedTimeForYear})
+    void onClick(View view) {
+        if (mIsDataEmpty) {
+            showToast(R.string.view_empty);
+            return;
+        }
+        switch (view.getId()) {
+            case R.id.btnFixedTimeForDay:
+                TimePickerUtils.showPickerView(getActivity(), "选择时间", tvFixedTime, true, true, new TimePickerView.OnTimeSelectListener() {
+                    @Override
+                    public void onTimeSelect(Date date, View v) {
+                        tvFixedTime.setText(FormatUtils.dateToString(date, true, true));
+                        tvFixedMapName.setText("定点日线图");
+                        mTimeType = 2;
+                        tvDay.setBackgroundResource(R.drawable.btn_blue);
+                        tvMonth.setBackgroundResource(R.color.white);
+                        tvYear.setBackgroundResource(R.color.white);
+                        refreshData();
+                    }
+                });
+                break;
+            case R.id.btnFixedTimeForMonth:
+                TimePickerUtils.showPickerView(getActivity(), "选择时间", tvFixedTime, true, false, new TimePickerView.OnTimeSelectListener() {
+                    @Override
+                    public void onTimeSelect(Date date, View v) {
+                        tvFixedTime.setText(FormatUtils.dateToString(date, true, false));
+                        tvFixedMapName.setText("定点月线图");
+                        tvDay.setBackgroundResource(R.color.white);
+                        tvMonth.setBackgroundResource(R.drawable.btn_blue);
+                        tvYear.setBackgroundResource(R.color.white);
+                        mTimeType = 1;
+                        refreshData();
+                    }
+                });
+                break;
+            case R.id.btnFixedTimeForYear:
+                TimePickerUtils.showPickerView(getActivity(), "选择时间", tvFixedTime, false, false, new TimePickerView.OnTimeSelectListener() {
+                    @Override
+                    public void onTimeSelect(Date date, View v) {
+                        tvFixedMapName.setText("定点年线图");
+                        mTimeType = 0;
+                        tvFixedTime.setText(FormatUtils.dateToString(date, false, false));
+                        tvDay.setBackgroundResource(R.color.white);
+                        tvMonth.setBackgroundResource(R.color.white);
+                        tvYear.setBackgroundResource(R.drawable.btn_blue);
+                        refreshData();
+                    }
+                });
+                break;
+        }
     }
 }

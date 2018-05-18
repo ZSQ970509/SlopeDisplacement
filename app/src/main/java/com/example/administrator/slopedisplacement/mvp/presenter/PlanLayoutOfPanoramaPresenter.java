@@ -46,7 +46,7 @@ public class PlanLayoutOfPanoramaPresenter extends BasePresenter<PlanLayoutOfPan
     public void getSchemeAlarmList(String schemeID, String states, String startTime, String endTime, String pageindex, String pagesize, String uid) {
         getIView().showLoading("正在加载中...");
         new PlanLayoutOfPanoramaModel()
-                .getSchemeAlarmList("56", "3", startTime, endTime, pageindex, pagesize, uid)
+                .getSchemeAlarmList(schemeID, "3", startTime, endTime, pageindex, pagesize, uid)
                 .compose(getIView().bindLifecycle())
                 .subscribe(new HttpObserver<HttpResponse<SchemeAlarmListBean>>() {
                     @Override
@@ -107,7 +107,8 @@ public class PlanLayoutOfPanoramaPresenter extends BasePresenter<PlanLayoutOfPan
     }
 
     /**
-     *  获取区域(巡航)列表
+     * 获取区域(巡航)列表
+     *
      * @param schemeID
      * @param uid
      */
@@ -132,8 +133,10 @@ public class PlanLayoutOfPanoramaPresenter extends BasePresenter<PlanLayoutOfPan
                 });
 
     }
+
     /**
-     *  获取定点列表
+     * 获取定点列表
+     *
      * @param schemeID
      * @param uid
      */
@@ -157,8 +160,10 @@ public class PlanLayoutOfPanoramaPresenter extends BasePresenter<PlanLayoutOfPan
                     }
                 });
     }
+
     /**
-     *  获取区域监测点日志top1(最新一条)
+     * 获取区域监测点日志top1(最新一条)
+     *
      * @param schemeID
      * @param uid
      */

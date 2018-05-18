@@ -52,7 +52,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="2.00"
-            android:textColor="#000000"
+            android:textColor="#229be5"
             android:textSize="@dimen/x24" />
 
 

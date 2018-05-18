@@ -54,7 +54,7 @@ public class CruiseDataFragment extends BaseMvpLazyFragment<CruiseDataPresenter>
     private GetDatSchemeAreaListJson mArealListJson;
 
     private List<GetSchemeMonitorListLogJson.ListBean> mAdapterData = new ArrayList<>();
-    private int mPageIndex = 0;//当前的页数
+    private int mPageIndex = 1;//当前的页数
     private int mPageSize = 15;//每页的数量
     private int mPageSizeNum = 0;//数据的总数
     /**
@@ -84,9 +84,9 @@ public class CruiseDataFragment extends BaseMvpLazyFragment<CruiseDataPresenter>
 
     public static CruiseDataFragment newInstance(GetDatSchemeAreaListJson areaListJson, String schemeID) {
         CruiseDataFragment cruiseDataFragment = new CruiseDataFragment();
-        if(areaListJson==null||areaListJson.getList()==null||areaListJson.getList().isEmpty()){
+        if (areaListJson == null || areaListJson.getList() == null || areaListJson.getList().isEmpty()) {
             cruiseDataFragment.setDataEmpty();
-        }else {
+        } else {
             cruiseDataFragment.mArealListJson = areaListJson;
             cruiseDataFragment.mSchemeID = schemeID;
         }
@@ -100,17 +100,19 @@ public class CruiseDataFragment extends BaseMvpLazyFragment<CruiseDataPresenter>
 
     @Override
     public void initView() {
+        if (mIsDataEmpty)
+            return;
         mAdapter = new CruiseDataAdapter(R.layout.item_cruise_data, mAdapterData);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.setLoadMoreView(new CustomLoadMoreView());
         //加载更多
         mAdapter.setOnLoadMoreListener(() -> {
-            if (mPageIndex * mPageSize > mPageSizeNum) {
+            mPageIndex++;
+            if (mPageIndex > (mPageSizeNum + mPageSize - 1) / mPageSize) {
                 showToast("已经是最后一页了");
                 mAdapter.loadMoreEnd();
             } else {
-                mPageIndex++;
                 getCruiseData();
             }
         }, mRecyclerView);
@@ -118,7 +120,7 @@ public class CruiseDataFragment extends BaseMvpLazyFragment<CruiseDataPresenter>
             switch (view.getId()) {
                 case R.id.tvItemCruiseDataNowShift:
                     GetSchemeMonitorListLogJson.ListBean item = (GetSchemeMonitorListLogJson.ListBean) baseQuickAdapter.getItem(i);
-                    JumpToUtils.toShowMonitoringImgActivity(getActivity(), item.getPhoto1(), item.getPhoto2(), item.getRecordID(), item.getMonitorID(), item.getNowShift());
+                    JumpToUtils.toShowMonitoringImgActivity(getActivity(), item.getPhoto1(), item.getPhoto2(), mPageSizeNum - i, item.getMonitorID(), item.getNowShift());
                     break;
             }
         });
@@ -191,8 +193,15 @@ public class CruiseDataFragment extends BaseMvpLazyFragment<CruiseDataPresenter>
     }
 
     @Override
-    protected void lazyLoadDate() {
-        getCruiseData();
+    protected void lazyLoad() {
+        if (mIsFragmentVisible && mIsInitView && mIsFirstLazyLoad) {
+            mIsFirstLazyLoad = false;
+            if (mIsDataEmpty) {
+                showToast(R.string.view_empty);
+            } else {
+                getCruiseData();
+            }
+        }
     }
 
     /**
@@ -209,12 +218,14 @@ public class CruiseDataFragment extends BaseMvpLazyFragment<CruiseDataPresenter>
     @Override
     public void onGetSchemeMonitorListLogSuccess(GetSchemeMonitorListLogJson jsonData) {
         mPageSizeNum = jsonData.getTotalCount();
-        if(mAdapter!=null){
+        if (mAdapter != null) {
+            mAdapter.setTotalCount(jsonData.getTotalCount());
             mAdapter.addData(jsonData.getList());
             if (mAdapter.isLoading())
                 mAdapter.loadMoreComplete();
         }
     }
+
 
     @Override
     public void onGetSchemeMonitorListLogFail(String msg) {
@@ -225,7 +236,8 @@ public class CruiseDataFragment extends BaseMvpLazyFragment<CruiseDataPresenter>
 
     @OnClick({R.id.btCruiseDataStart, R.id.btCruiseDataEnd, R.id.btCruiseDataSearch})
     void OnClick(View view) {
-        if(mIsDataEmpty){
+        if (mIsDataEmpty) {
+            showToast(R.string.view_empty);
             return;
         }
         switch (view.getId()) {
@@ -237,11 +249,12 @@ public class CruiseDataFragment extends BaseMvpLazyFragment<CruiseDataPresenter>
                 break;
             case R.id.btCruiseDataSearch://搜索
                 //初始化数据
-                mPageIndex = 0;
+                mPageIndex = 1;
                 mPageSizeNum = 0;
                 mSelectTimeStart = mTvCruiseDataStart.getText().toString();
                 mSelectTimeEnd = mTvCruiseDataEnd.getText().toString();
                 mAdapterData.clear();
+                mAdapter.setTotalCount(0);
                 mAdapter.setNewData(null);//重新开启下拉加载更多
                 getCruiseData();
                 break;

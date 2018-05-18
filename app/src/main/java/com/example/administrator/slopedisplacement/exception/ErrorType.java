@@ -15,7 +15,11 @@ public interface ErrorType {
     /**
      * 请求失败
      */
-    int FAIL = 1;
+    int FAIL = 0;
+    /**
+     * 数据为空
+     */
+    int DATE_NULL = 2;
     /**
      * 未知错误
      */
@@ -33,9 +37,4 @@ public interface ErrorType {
      * 解析错误
      */
     int JSON_ERROR = 1004;
-
-    /**
-     * 数据为空
-     */
-    int DATE_NULL = 1005;
 }

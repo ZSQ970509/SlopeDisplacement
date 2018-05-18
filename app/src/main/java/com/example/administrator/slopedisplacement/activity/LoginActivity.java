@@ -75,11 +75,10 @@ public class LoginActivity extends BaseMvpActivity<LoginPresenter> implements Lo
             //小米推送注册别名和用户账号
             MiPushClient.setAlias(ProApplication.getInstance(), UserInfoPref.getUserId(), "");
             MiPushClient.setUserAccount(ProApplication.getInstance(), UserInfoPref.getUserId(), "");
-            Intent intent = new Intent(LoginActivity.this, SelectProjectActivity.class);
-            startActivity(intent);
-              //mPresenter.updateLoginMessage(etUserName.getText().toString(), UserInfoPref.getGeTuiClientId());
+            toSelectProAc();
+            //mPresenter.updateLoginMessage(etUserName.getText().toString(), UserInfoPref.getGeTuiClientId());
         } else {
-            mPresenter.updateLoginMessage(etUserName.getText().toString(), UserInfoPref.getGeTuiClientId(),UserInfoPref.getUserId());
+            mPresenter.updateLoginMessage(etUserName.getText().toString(), UserInfoPref.getGeTuiClientId(), UserInfoPref.getUserId());
         }
     }
 
@@ -90,8 +89,13 @@ public class LoginActivity extends BaseMvpActivity<LoginPresenter> implements Lo
 
     @Override
     public void onUpdateLoginMessageSuccess(HttpResponse httpResponse) {
+        toSelectProAc();
+    }
+
+    private void toSelectProAc() {
         Intent intent = new Intent(LoginActivity.this, SelectProjectActivity.class);
         startActivity(intent);
+        finish();
     }
 
     @Override
@@ -104,6 +108,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresenter> implements Lo
     void OnClick(View view) {
         switch (view.getId()) {
             case R.id.ivLogin:
+//                startActivity(new Intent(getActivity(), RtspNewVideoActivity.class));
                 if (etUserName.getText().toString().isEmpty()) {
                     showToast("用户名不能为空");
                     return;

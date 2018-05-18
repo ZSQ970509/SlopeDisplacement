@@ -17,6 +17,7 @@ import io.reactivex.disposables.Disposable;
 
 public abstract class BaseObserver<T> implements Observer<T>, HttpRequest<T> {
     private Disposable disposable;//断流
+
     //当订阅后，会首先调用这个方法，其实就相当于onStart()，
     //传入的Disposable d参数可以用于取消订阅
     @Override
@@ -27,17 +28,21 @@ public abstract class BaseObserver<T> implements Observer<T>, HttpRequest<T> {
             disposable.dispose();
         }
     }
+
     @Override
     public void onNext(@NonNull T response) {
         //防止闪退问题
         try {
             onSuccess(response);
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
             e.printStackTrace();
-            L.e("网络异常！错误码:"+ ErrorType.DATE_NULL);
-        }catch (Exception e){
+            L.e("网络异常！错误码:" + ErrorType.DATE_NULL);
+        } catch (ApiException e) {
             e.printStackTrace();
-            L.e("网络异常！错误码:"+ ErrorType.UN_KNOWN_ERROR);
+            L.e("网络异常！错误码:" + e.getCode());
+        } catch (Exception e) {
+            e.printStackTrace();
+            L.e("网络异常！错误码:" + ErrorType.UN_KNOWN_ERROR);
         }
     }
 

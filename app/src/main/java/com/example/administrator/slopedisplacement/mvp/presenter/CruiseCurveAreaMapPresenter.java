@@ -28,13 +28,13 @@ public class CruiseCurveAreaMapPresenter extends BasePresenter<CruiseCurveAreaMa
                     @Override
                     public void onSuccess(HttpResponse<List<AreaMapBean>> json) {
                         getIView().hideLoading();
-                        getIView().onGetNewSchemeMonitorChartsByDateTopSuccess(json.getData());
+                        getIView().onGetNewSchemeMonitorChartsByDateTopSuccess(json);
                     }
 
                     @Override
                     public void onFail(ApiException msg) {
                         getIView().hideLoading();
-                        getIView().onGetNewSchemeMonitorChartsByDateTopFail(msg.getMessage().toString());
+                        getIView().onGetNewSchemeMonitorChartsByDateTopFail(msg.getMessage());
                     }
                 });
     }

@@ -21,18 +21,20 @@ public abstract class HttpObserver<T extends HttpResponse> extends BaseObserver<
     public void onNext(@NonNull T response) {
         //防止闪退问题
         try {
-            if(response.getCode() == ErrorType.SUCCESS) {
+            if (response.getCode() == ErrorType.FAIL) {
+                onFail(new ApiException(response.getMsg(), ErrorType.FAIL));
+            } else {
                 onSuccess(response);
             }
-            else {
-                onFail(new ApiException(response.getMsg(),ErrorType.FAIL));
-            }
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
             e.printStackTrace();
-            L.e("网络异常！错误码:"+ ErrorType.DATE_NULL);
-        }catch (Exception e){
+            L.e("网络异常！错误码:" + ErrorType.DATE_NULL);
+        } catch (ApiException e) {
             e.printStackTrace();
-            L.e("网络异常！错误码:"+ ErrorType.UN_KNOWN_ERROR);
+            L.e("网络异常！错误码:" + e.getCode() + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            L.e("网络异常！错误码:" + ErrorType.UN_KNOWN_ERROR);
         }
     }
 }

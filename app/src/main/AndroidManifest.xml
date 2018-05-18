@@ -22,6 +22,20 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <!-- 自定义权限 -->
     <uses-permission android:name="getui.permission.GetuiService.${applicationId}" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <permission
         android:name="getui.permission.GetuiService.${applicationId}"
@@ -50,16 +64,19 @@
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.WelcomeActivity"
-            android:screenOrientation="portrait" >
+        <activity
+            android:name=".activity.WelcomeActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.LoginActivity"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.LoginActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
         <!-- 个推SDK配置开始 -->
         <!-- 配置的第三方参数属性 -->
         <meta-data
@@ -151,6 +168,18 @@
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:screenOrientation="landscape" />
 
+        <activity
+            android:name=".activity.RtspNewVideoActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+            android:keepScreenOn="true"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".activity.RtspVideoActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+            android:keepScreenOn="true"
+            android:launchMode="singleTop" />
+        <activity android:name=".activity.HuXinVideoActivity" />
+        <activity android:name=".activity.HKVideoActivity" />
         <!-- 小米推送配置 -->
         <service
             android:name="com.xiaomi.push.service.XMJobService"
@@ -201,8 +230,7 @@
             </intent-filter>
         </receiver>
         <!-- 小米推送配置 -->
-        <activity android:name=".activity.HuXinVideoActivity" />
-        <activity android:name=".activity.HKVideoActivity"></activity>
+
     </application>
 
 </manifest>

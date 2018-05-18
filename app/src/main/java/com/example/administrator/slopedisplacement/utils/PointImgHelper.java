@@ -1,5 +1,7 @@
 package com.example.administrator.slopedisplacement.utils;
 
+import android.text.TextUtils;
+
 import com.example.administrator.slopedisplacement.bean.json.GetDatSchemeAreaListJson;
 import com.example.administrator.slopedisplacement.bean.json.GetDatSchemeFixedListJson;
 import com.example.administrator.slopedisplacement.widget.pointImg.LineBean;
@@ -31,15 +33,19 @@ public class PointImgHelper {
             return;
         //区域列表里的点线
         for (GetDatSchemeAreaListJson.ListBean area : areaList) {
-            if (area == null)
+            if (area == null || TextUtils.isEmpty(area.getAreaType()))
                 continue;
             switch (area.getAreaType()) {
                 case "1": {//区域
-                    double startX = Double.parseDouble(area.getOx1());
-                    double startY = Double.parseDouble(area.getOy1());
-                    double endX = Double.parseDouble(area.getOx2());
-                    double endY = Double.parseDouble(area.getOy2());
+                    double startX;
+                    double startY;
+                    double endX;
+                    double endY;
                     if (area.getNewMonitor() == null || area.getNewMonitor().size() == 0) {//为空只花两个点
+                        startX = Double.parseDouble(area.getOx1());
+                        startY = Double.parseDouble(area.getOy1());
+                        endX = Double.parseDouble(area.getOx2());
+                        endY = Double.parseDouble(area.getOy2());
                         String areaName = area.getAreaNmae();
                         PointBean pointStart = new PointBean();
                         pointStart.setXScale(startX);
@@ -66,42 +72,50 @@ public class PointImgHelper {
                         pointEnd.setPointIndex(pointBeanList.size());
                         pointBeanList.add(pointEnd);
                         lineBeanList.add(new LineBean(pointStart.getPointIndex(), pointEnd.getPointIndex()));
-                        return;
-                    }
-                    int num = area.getNewMonitor().size();
-                    boolean isPointVertical = isPointVertical(startX, startY, endX, endY);
-                    int pointBeanListIndex = pointBeanList.size();
-                    for (int i = 0; i < num / 2; i++) {
-                        PointBean pointBean1 = new PointBean();
-                        double scaleX = pointDistance(startX, endX, i, num / 2 - 1);
-                        double scaleY = pointDistance(startY, endY, i, num / 2 - 1);
-                        pointBean1.setXScale(scaleX);
-                        pointBean1.setYScale(scaleY);
-                        pointBean1.setmMonitorID(area.getNewMonitor().get(i * 2).getMonitorID());
-                        if (i == 0) {
-                            pointBean1.setPointName(area.getAreaNmae());
-                        }
-                        pointBean1.setPointIndex(pointBeanListIndex + i * 2);
+                        break;
+                    } else {
+                        startX = Double.parseDouble(area.getOx1());
+                        startY = Double.parseDouble(area.getOy1());
+                        endX = Double.parseDouble(area.getOx2());
+                        endY = Double.parseDouble(area.getOy2());
+                        int num = area.getNewMonitor().size();
+                        boolean isPointVertical = onPointVertical(Double.parseDouble(area.getAha1()), Double.parseDouble(area.getAha2()), Double.parseDouble(area.getAva1()), Double.parseDouble(area.getAva2()));
+                        int pointBeanListIndex = pointBeanList.size();
+                        //添加点
+                        for (int i = 0; i < num / 2; i++) {
+                            PointBean pointBean1 = new PointBean();
+                            double scaleX = pointDistance(startX, endX, i, num / 2 - 1);
+                            double scaleY = pointDistance(startY, endY, i, num / 2 - 1);
+                            pointBean1.setXScale(scaleX);
+                            pointBean1.setYScale(scaleY);
+                            pointBean1.setmMonitorID(area.getNewMonitor().get(i * 2).getMonitorID());
+                            if (i == 0) {
+                                pointBean1.setPointName(area.getAreaNmae());
+                            }
+                            pointBean1.setPointIndex(pointBeanListIndex + i * 2);
 
-                        PointBean pointBean2 = new PointBean();
-                        if (isPointVertical) {
-                            pointBean2.setXScale(scaleX + pointOffsetScale);
-                            pointBean2.setYScale(scaleY);
-                        } else {
-                            pointBean2.setXScale(scaleX);
-                            pointBean2.setYScale(scaleY + pointOffsetScale);
+                            PointBean pointBean2 = new PointBean();
+                            if (isPointVertical) {
+                                pointBean2.setXScale(scaleX + pointOffsetScale);
+                                pointBean2.setYScale(scaleY);
+                            } else {
+                                pointBean2.setXScale(scaleX);
+                                pointBean2.setYScale(scaleY + pointOffsetScale);
+                            }
+                            pointBean2.setmMonitorID(area.getNewMonitor().get(i * 2 + 1).getMonitorID());
+                            pointBean2.setPointIndex(pointBeanListIndex + i * 2 + 1);
+                            pointBeanList.add(pointBean1);
+                            pointBeanList.add(pointBean2);
                         }
-                        pointBean2.setmMonitorID(area.getNewMonitor().get(i * 2 + 1).getMonitorID());
-                        pointBean2.setPointIndex(pointBeanListIndex + i * 2 + 1);
-                        pointBeanList.add(pointBean1);
-                        pointBeanList.add(pointBean2);
+                        //添加虚线
+                        if (num > 2) {
+                            dottedLineList.add(new LineBean(pointBeanList.get(pointBeanListIndex).getPointIndex(), pointBeanList.get(pointBeanListIndex + 1).getPointIndex()));
+                            dottedLineList.add(new LineBean(pointBeanList.get(pointBeanListIndex + num - 2).getPointIndex(), pointBeanList.get(pointBeanListIndex + num - 1).getPointIndex()));
+                        }
+                        //添加实线
+                        lineBeanList.add(new LineBean(pointBeanList.get(pointBeanListIndex).getPointIndex(), pointBeanList.get(pointBeanListIndex + num - 2).getPointIndex()));
+                        break;
                     }
-                    if (num > 2) {
-                        dottedLineList.add(new LineBean(pointBeanList.get(pointBeanListIndex).getPointIndex(), pointBeanList.get(pointBeanListIndex + 1).getPointIndex()));
-                        dottedLineList.add(new LineBean(pointBeanList.get(pointBeanListIndex + num - 2).getPointIndex(), pointBeanList.get(pointBeanListIndex + num - 1).getPointIndex()));
-                    }
-                    lineBeanList.add(new LineBean(pointBeanList.get(pointBeanListIndex).getPointIndex(), pointBeanList.get(pointBeanListIndex + num - 2).getPointIndex()));
-                    break;
                 }
                 case "2": {//线
                     String areaName = area.getAreaNmae();
@@ -180,20 +194,23 @@ public class PointImgHelper {
     /**
      * 点的方向
      *
-     * @param x1
-     * @param y1
-     * @param x2
-     * @param y2
      * @return true 向右 false 向下
      */
-    private static boolean isPointVertical(double x1, double y1, double x2, double y2) {
-        if (x1 == x2) {
-            return true;
+    private static boolean onPointVertical(double aha1, double aha2, double ava1, double ava2) {
+        //垂直角度差
+        double fTotleAva = Math.abs(ava1 - ava2);
+        //垂直角度过零判断（处理）
+        if ((ava1 > 180 && ava2 < 180)) {
+            fTotleAva = (360 - ava1) + ava2;
+        } else if (ava2 > 180 && ava1 < 180) {
+            fTotleAva = (360 - ava2) + ava1;
         }
-        if (y1 == y2) {
-            return false;
-        }
-        return Math.abs((y2 - y1) / (x2 - x1)) > 1;
+        //水平角度差
+        double fTotleAha = Math.abs(aha1 - aha2);
+
+        //水平角度差值与垂直角度差值比较
+        //水平(false) 垂直(true)
+        return fTotleAha < fTotleAva;
     }
 
     /**
@@ -203,7 +220,7 @@ public class PointImgHelper {
      * @param end   结束位置
      * @param n     分子
      * @param m     分母
-     * @return      坐标
+     * @return 坐标
      */
     private static double pointDistance(double start, double end, int n, int m) {
         return (end - start) * n / m + start;

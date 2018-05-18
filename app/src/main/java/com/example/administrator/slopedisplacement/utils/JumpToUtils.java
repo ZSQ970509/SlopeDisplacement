@@ -7,9 +7,9 @@ import android.content.Intent;
 import com.example.administrator.slopedisplacement.activity.AlarmChartViewActivity;
 import com.example.administrator.slopedisplacement.activity.DataReportActivity;
 import com.example.administrator.slopedisplacement.activity.HKVideoActivity;
+import com.example.administrator.slopedisplacement.activity.RtspVideoActivity;
 import com.example.administrator.slopedisplacement.activity.HuXinVideoActivity;
 import com.example.administrator.slopedisplacement.activity.PlanLayoutOfPanoramaActivity;
-import com.example.administrator.slopedisplacement.activity.SelectDriverActivity;
 import com.example.administrator.slopedisplacement.activity.SelectProjectActivity;
 import com.example.administrator.slopedisplacement.activity.SelectSchemeActivity;
 import com.example.administrator.slopedisplacement.activity.ShowMonitoringImgActivity;
@@ -17,7 +17,6 @@ import com.example.administrator.slopedisplacement.bean.IVMS_8700_Bean;
 import com.example.administrator.slopedisplacement.bean.SchemeBean;
 import com.example.administrator.slopedisplacement.bean.json.GetDatSchemeAreaListJson;
 import com.example.administrator.slopedisplacement.bean.json.GetDatSchemeFixedListJson;
-import com.example.administrator.slopedisplacement.pushmi.PushMiJson;
 
 /**
  * Activity跳转
@@ -57,7 +56,7 @@ public class JumpToUtils {
      */
     public static void toShowMonitoringImgActivity(Activity activity, String wideAngleImg, String longFocalImg, int recordID, int monitorID, double nowShift) {
         Intent intent = new Intent(activity, ShowMonitoringImgActivity.class);
-        intent.putExtra(KEY_TITLE, "监测图查看(序号:" + recordID + ",监测点:" + monitorID + ")本次位移:" + FormatUtils.format2(nowShift));
+        intent.putExtra(KEY_TITLE, "监测图查看(序号：" + recordID + "，监测点：" + monitorID + ") 本次位移：" + (int) (nowShift * 100) + "mm");
         intent.putExtra(KEY_WIDE_ANGLE_IMG, wideAngleImg);
         intent.putExtra(KEY_LONG_FOCAL_IMG, longFocalImg);
         activity.startActivity(intent);
@@ -68,6 +67,7 @@ public class JumpToUtils {
     public static final String KEY_SCHEMEID = "key_schemeID";
     public static final String KEY_IVMS_8700_BEAN = "key_ivms_8700_bean";
     public static final String KEY_FROM_PUSH = "key_from_push";
+
     /**
      * 跳转到主页面页面
      *
@@ -83,6 +83,7 @@ public class JumpToUtils {
         intent.putExtra(KEY_FROM_PUSH, false);//是否来至推送
         activity.startActivity(intent);
     }
+
     /**
      * 推送跳转到主页面页面
      *
@@ -95,11 +96,12 @@ public class JumpToUtils {
         Intent intent = new Intent(context, PlanLayoutOfPanoramaActivity.class);
         intent.putExtra(KEY_CAMID, camId);
         intent.putExtra(KEY_SCHEMEID, schemeID);
-        intent.putExtra(KEY_IVMS_8700_BEAN,ivms_8700_bean);
+        intent.putExtra(KEY_IVMS_8700_BEAN, ivms_8700_bean);
         intent.putExtra(KEY_FROM_PUSH, true);//是否来至推送
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
+
     public static final String KEY_SCHEMEBEAN = "key_schemeBean";
 
     /**
@@ -116,28 +118,36 @@ public class JumpToUtils {
         intent.putExtra(KEY_IVMS_8700_BEAN, ivms_8700_bean);
         activity.startActivity(intent);
     }
+
     /**
      * 跳转到互信播放页面
      *
      * @param activity
      * @param ivms_8700_bean
-     *
      */
     public static void toHuXinVideoActivity(Activity activity, IVMS_8700_Bean ivms_8700_bean) {
         Intent intent = new Intent(activity, HuXinVideoActivity.class);
         intent.putExtra(KEY_IVMS_8700_BEAN, ivms_8700_bean);
         activity.startActivity(intent);
     }
+
     /**
      * 跳转到海康播放页面
      *
      * @param activity
      * @param ivms_8700_bean
-     *
      */
     public static void toHKVideoActivity(Activity activity, IVMS_8700_Bean ivms_8700_bean) {
         Intent intent = new Intent(activity, HKVideoActivity.class);
         intent.putExtra(KEY_IVMS_8700_BEAN, ivms_8700_bean);
+        activity.startActivity(intent);
+    }
+
+    public static final String KEY_VIDEO_RTSP = "key_video_rtsp";
+
+    public static void toRtspVideoAc(Activity activity, String rtsp) {
+        Intent intent = new Intent(activity, RtspVideoActivity.class);
+        intent.putExtra(KEY_VIDEO_RTSP, rtsp);
         activity.startActivity(intent);
     }
 
@@ -148,8 +158,10 @@ public class JumpToUtils {
     public static final String KEY_PATHA = "Patha";
     public static final String KEY_NEXTPATHA = "nextPatha";
     public static final String KEY_OLDPATHA = "oldPatha";
+
     /**
      * 跳转到查看告警图页面
+     *
      * @param activity
      * @param MonitorID
      * @param Aha

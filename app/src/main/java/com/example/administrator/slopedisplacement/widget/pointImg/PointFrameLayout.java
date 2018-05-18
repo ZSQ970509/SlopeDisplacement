@@ -107,26 +107,38 @@ public class PointFrameLayout extends FrameLayout {
                         int originalHeight = resource.getHeight();//原始图的高度
 
                         //获取图片显示（即拉伸后的图）后的宽高
-                        int currentWidth;//拉伸后图的宽度
-                        int currentHeight;//拉伸后图的高度
+                        double currentWidth;//拉伸后图的宽度
+                        double currentHeight;//拉伸后图的高度
                         if (originalWidth / originalHeight - mFrameLayout.getWidth() / mFrameLayout.getHeight() > 0) {//图片的宽大于容器的宽
-                            currentWidth = mFrameLayout.getWidth();
-                            currentHeight = mFrameLayout.getWidth() * originalHeight / originalWidth;
+                            double tmpHeight = mFrameLayout.getWidth() * originalHeight / originalWidth;
+                            if (tmpHeight > mFrameLayout.getHeight()) {
+                                currentWidth = mFrameLayout.getWidth() * mFrameLayout.getHeight() / tmpHeight;
+                                currentHeight = mFrameLayout.getHeight();
+                            } else {
+                                currentWidth = mFrameLayout.getWidth();
+                                currentHeight = tmpHeight;
+                            }
                         } else {
-                            currentWidth = mFrameLayout.getHeight() * originalWidth / originalHeight;
-                            currentHeight = mFrameLayout.getHeight();
+                            double tmpWidth = mFrameLayout.getHeight() * originalWidth / originalHeight;
+                            if (tmpWidth > mFrameLayout.getWidth()) {
+                                currentWidth = mFrameLayout.getWidth();
+                                currentHeight = mFrameLayout.getHeight() * mFrameLayout.getWidth() / tmpWidth;
+                            } else {
+                                currentWidth = tmpWidth;
+                                currentHeight = mFrameLayout.getHeight();
+                            }
                         }
                         refreshData(currentWidth, currentHeight);
                         addPoint();
 
                         //创建一个透明层，用于描绘线和文字
-                        Bitmap bm = Bitmap.createBitmap(currentWidth, currentHeight, Bitmap.Config.ARGB_8888);
+                        Bitmap bm = Bitmap.createBitmap((int) currentWidth, (int) currentHeight, Bitmap.Config.ARGB_8888);
                         Bitmap bitmap = createWaterMaskBitmap(bm);
                         mIvTran.setImageBitmap(bitmap);
 
                         //压缩图片
                         Matrix matrix = new Matrix();
-                        matrix.setScale(currentWidth * 1.0f / resource.getWidth(), currentHeight * 1.0f / resource.getHeight());
+                        matrix.setScale((float) (currentWidth / resource.getWidth()), (float) (currentHeight / resource.getHeight()));
                         resource = Bitmap.createBitmap(resource, 0, 0, resource.getWidth(), resource.getHeight(), matrix, true);
                         mIvBg.setImageBitmap(resource);
                     }
@@ -151,7 +163,7 @@ public class PointFrameLayout extends FrameLayout {
      * @param currentWidth  拉伸后图的宽度
      * @param currentHeight 拉伸后图的高度
      */
-    private void refreshData(int currentWidth, int currentHeight) {
+    private void refreshData(double currentWidth, double currentHeight) {
         mIsPreparePoint = false;
         List<PointBean> pointLists = imgPointBean.getPointBeanList();
         for (PointBean pointBean : pointLists) {
@@ -159,9 +171,10 @@ public class PointFrameLayout extends FrameLayout {
             // 点在拉伸后的图里的位置
             pointBean.setShowMarginTop((int) (currentHeight * pointBean.getYScale() / 100));
             pointBean.setShowMarginLeft((int) (currentWidth * pointBean.getXScale() / 100));
-
+//            pointBean.setShowMarginTop(getMarginLine(mFrameLayout.getHeight(), currentHeight, mPointSize, pointBean.getYScale()));
+//            pointBean.setShowMarginLeft(getMarginLine(mFrameLayout.getHeight(), currentHeight, mPointSize, pointBean.getXScale()));
             // 点在屏幕里实际的位置
-            pointBean.setMarginLeft((getMargin(mFrameLayout.getWidth(), currentWidth, mPointSize, pointBean.getXScale())));
+            pointBean.setMarginLeft(getMargin(mFrameLayout.getWidth(), currentWidth, mPointSize, pointBean.getXScale()));
             pointBean.setMarginTop(getMargin(mFrameLayout.getHeight(), currentHeight, mPointSize, pointBean.getYScale()));
         }
     }
@@ -277,7 +290,7 @@ public class PointFrameLayout extends FrameLayout {
             return null;
         }
         Canvas canvas = new Canvas(bitmap);
-        canvas.drawBitmap(bitmap, 0, 0, null);  //在画布 0，0坐标上开始绘制原始图片
+        canvas.drawBitmap(bitmap, 0, 0, null);  //在画布 0，0坐标上开始绘制
         Paint mPaint = new Paint();
         mPaint.setStyle(Paint.Style.FILL);
         Paint mPaint1 = new Paint();
@@ -339,7 +352,7 @@ public class PointFrameLayout extends FrameLayout {
      * @param scale         比例
      * @return
      */
-    private int getMargin(int layout, int img, int pointViewSize, double scale) {
+    private int getMargin(int layout, double img, int pointViewSize, double scale) {
         return (int) ((layout - img) / 2.0 - pointViewSize / 2.0 + img * scale / 100);
     }
 
