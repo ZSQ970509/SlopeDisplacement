@@ -161,6 +161,7 @@ public class ChartUtils {
         LineDataSet set;
         if (lineChart.getData() != null && lineChart.getData().getDataSetCount() > 0 && lineChart.getData().getDataSetByIndex(chartDataIndex) != null) {
             set = (LineDataSet) lineChart.getData().getDataSetByIndex(chartDataIndex);
+            set.setLabel(name);
             set.setValues(yVals);
         } else {
             set = new LineDataSet(yVals, name);

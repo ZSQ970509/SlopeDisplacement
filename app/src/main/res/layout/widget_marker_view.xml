@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
     <LinearLayout
+        android:id="@+id/llMarker"
         android:layout_width="wrap_content"
-        android:layout_height="@dimen/y120"
-        android:background="@drawable/marker2"
+        android:layout_height="wrap_content"
+        android:background="#bfbfbf"
         android:gravity="center"
-        android:paddingBottom="@dimen/y30"
-        android:orientation="vertical">
-        <!--<ImageView-->
-            <!--android:layout_width="15dp"-->
-            <!--android:layout_height="15dp"-->
-            <!--android:layout_gravity="right"-->
-            <!--android:layout_marginRight="@dimen/x10"-->
-            <!--android:src="@drawable/notice_close_iv"/>-->
+        android:layout_gravity="center_horizontal"
+        android:minWidth="100dp"
+        android:orientation="vertical"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp">
+
         <TextView
             android:id="@+id/tvContent1"
             android:layout_width="wrap_content"
@@ -50,5 +50,11 @@
             android:textSize="12dp" />
     </LinearLayout>
 
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="10dp"
+        android:scaleType="fitXY"
+        android:layout_gravity="center_horizontal"
+        android:src="@mipmap/marker_bottom" />
 
-</RelativeLayout>
+</LinearLayout>

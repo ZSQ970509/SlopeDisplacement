@@ -60,6 +60,8 @@ public class SelectDriverActivity extends BaseMvpActivity<SelectDriverPresenter>
         setToolBar("设备列表");
         rvDriver.setLayoutManager(new LinearLayoutManager(this));
         selectDriverAdapter = new SelectDriverAdapter(R.layout.item_select_drivier, dataList);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        rvDriver.setLayoutManager(linearLayoutManager);
         rvDriver.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         rvDriver.setAdapter(selectDriverAdapter);
         selectDriverAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {

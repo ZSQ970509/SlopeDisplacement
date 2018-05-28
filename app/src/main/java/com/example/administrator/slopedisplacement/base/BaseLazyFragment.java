@@ -2,6 +2,7 @@ package com.example.administrator.slopedisplacement.base;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.StringRes;
 import android.support.v4.app.FragmentActivity;
@@ -127,11 +128,23 @@ public abstract class BaseLazyFragment extends RxFragment {
      * @param msg 内容
      */
     public void showToast(String msg) {
-        Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+        try {
+            Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Looper.prepare();
+            Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+            Looper.loop();
+        }
     }
 
     public void showToast(@StringRes int resId) {
-        Toast.makeText(getActivity(), getString(resId), Toast.LENGTH_SHORT).show();
+        try {
+            Toast.makeText(getActivity(), getString(resId), Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Looper.prepare();
+            Toast.makeText(getActivity(), getString(resId), Toast.LENGTH_SHORT).show();
+            Looper.loop();
+        }
     }
     /*
     tsetUserVisibleHin和Fragment的先后顺序

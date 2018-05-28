@@ -41,7 +41,7 @@ public class PointImgHelper {
                     double startY;
                     double endX;
                     double endY;
-                    if (area.getNewMonitor() == null || area.getNewMonitor().size() == 0) {//为空只花两个点
+                    if (area.getNewMonitor() == null || area.getNewMonitor().size() == 0) {//为空只画两个点
                         startX = Double.parseDouble(area.getOx1());
                         startY = Double.parseDouble(area.getOy1());
                         endX = Double.parseDouble(area.getOx2());
@@ -59,13 +59,6 @@ public class PointImgHelper {
                         } else {
                             pointEnd.setPointName(areaName);
                         }
-                        //添加newMonitorId用于启动和关闭点的动画
-                        List<GetDatSchemeAreaListJson.ListBean.NewMonitorBean> newMonitorBeanList = area.getNewMonitor();
-                        if (newMonitorBeanList != null && newMonitorBeanList.size() >= 2) {
-                            pointStart.setmMonitorID(area.getNewMonitor().get(0).getMonitorID());
-                            pointEnd.setmMonitorID(area.getNewMonitor().get(1).getMonitorID());
-                        }
-
                         pointStart.setPointIndex(pointBeanList.size());
                         pointBeanList.add(pointStart);
 
@@ -79,6 +72,7 @@ public class PointImgHelper {
                         endX = Double.parseDouble(area.getOx2());
                         endY = Double.parseDouble(area.getOy2());
                         int num = area.getNewMonitor().size();
+                        //判断虚线是水平还是垂直方向
                         boolean isPointVertical = onPointVertical(Double.parseDouble(area.getAha1()), Double.parseDouble(area.getAha2()), Double.parseDouble(area.getAva1()), Double.parseDouble(area.getAva2()));
                         int pointBeanListIndex = pointBeanList.size();
                         //添加点
@@ -130,7 +124,7 @@ public class PointImgHelper {
                     PointBean pointEnd = new PointBean();
                     pointEnd.setXScale(endX);
                     pointEnd.setYScale(endY);
-
+                    int oldPointSize = pointBeanList.size();//已有点的数量
                     if (startX < endX || (startX == endX && startY > endY)) {
                         pointStart.setPointName(areaName);
                     } else {
@@ -138,14 +132,25 @@ public class PointImgHelper {
                     }
                     //添加newMonitorId用于启动和关闭点的动画
                     List<GetDatSchemeAreaListJson.ListBean.NewMonitorBean> newMonitorBeanList = area.getNewMonitor();
-                    if (newMonitorBeanList != null && newMonitorBeanList.size() >= 2) {
+                    if (newMonitorBeanList != null) {
                         pointStart.setmMonitorID(area.getNewMonitor().get(0).getMonitorID());
-                        pointEnd.setmMonitorID(area.getNewMonitor().get(1).getMonitorID());
+                        pointEnd.setmMonitorID(area.getNewMonitor().get(newMonitorBeanList.size() - 1).getMonitorID());
                     }
-
                     pointStart.setPointIndex(pointBeanList.size());
                     pointBeanList.add(pointStart);
-
+                    if (newMonitorBeanList != null) {
+                        int num = newMonitorBeanList.size();
+                        for (int i = 1; i < num - 1; i++) {
+                            PointBean pointBean1 = new PointBean();
+                            double scaleX = pointDistance(startX, endX, i, num - 1);
+                            double scaleY = pointDistance(startY, endY, i, num  - 1);
+                            pointBean1.setXScale(scaleX);
+                            pointBean1.setYScale(scaleY);
+                            pointBean1.setmMonitorID(area.getNewMonitor().get(i).getMonitorID());
+                            pointBean1.setPointIndex(oldPointSize + i);
+                            pointBeanList.add(pointBean1);
+                        }
+                    }
                     pointEnd.setPointIndex(pointBeanList.size());
                     pointBeanList.add(pointEnd);
                     lineBeanList.add(new LineBean(pointStart.getPointIndex(), pointEnd.getPointIndex()));

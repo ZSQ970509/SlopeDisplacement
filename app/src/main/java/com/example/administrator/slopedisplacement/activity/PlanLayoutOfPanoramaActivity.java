@@ -175,20 +175,20 @@ public class PlanLayoutOfPanoramaActivity extends BaseMvpActivity<PlanLayoutOfPa
                             case R.id.tvSchemeAlaramListMove2:
                                 //MonitorID2 Aha2 Ava2 Shift2 Path2a nextPath2a oldPath2a
                                 JumpToUtils.toAlarmChartViewActivity(getActivity(), schemeAlarmListBean.getMonitorID1(),
-                                        schemeAlarmListBean.getAha1(), schemeAlarmListBean.getAva1(), schemeAlarmListBean.getShift1(),
-                                        schemeAlarmListBean.getPath1a() + "", schemeAlarmListBean.getNextPath1a() + "", schemeAlarmListBean.getOldPath1a());
+                                        schemeAlarmListBean.getAha2(), schemeAlarmListBean.getAva2(), schemeAlarmListBean.getShift2(),
+                                        schemeAlarmListBean.getPath2a() + "", schemeAlarmListBean.getNextPath2a() + "", schemeAlarmListBean.getOldPath2a());
                                 break;
                             case R.id.tvSchemeAlaramListMove3:
                                 //MonitorID3 Aha3 Ava3 Shift3 Path3a nextPath3a oldPath3a
                                 JumpToUtils.toAlarmChartViewActivity(getActivity(), schemeAlarmListBean.getMonitorID1(),
-                                        schemeAlarmListBean.getAha1(), schemeAlarmListBean.getAva1(), schemeAlarmListBean.getShift1(),
-                                        schemeAlarmListBean.getPath1a() + "", schemeAlarmListBean.getNextPath1a() + "", schemeAlarmListBean.getOldPath1a());
+                                        schemeAlarmListBean.getAha3(), schemeAlarmListBean.getAva3(), schemeAlarmListBean.getShift3(),
+                                        schemeAlarmListBean.getPath3a() + "", schemeAlarmListBean.getNextPath3a() + "", schemeAlarmListBean.getOldPath3a());
                                 break;
                             case R.id.tvSchemeAlaramListMove4:
                                 //MonitorID4 Aha4 Ava4 Shift4 Path4a nextPath4a oldPath4a
                                 JumpToUtils.toAlarmChartViewActivity(getActivity(), schemeAlarmListBean.getMonitorID1(),
-                                        schemeAlarmListBean.getAha1(), schemeAlarmListBean.getAva1(), schemeAlarmListBean.getShift1(),
-                                        schemeAlarmListBean.getPath1a() + "", schemeAlarmListBean.getNextPath1a() + "", schemeAlarmListBean.getOldPath1a());
+                                        schemeAlarmListBean.getAha4(), schemeAlarmListBean.getAva4(), schemeAlarmListBean.getShift4(),
+                                        schemeAlarmListBean.getPath4a() + "", schemeAlarmListBean.getNextPath4a() + "", schemeAlarmListBean.getOldPath4a());
                                 break;
                             case R.id.tvSchemeAlaramListMove5:
                                 if (schemeAlarmList.get(position).getTypes() == 1) {
@@ -431,24 +431,36 @@ public class PlanLayoutOfPanoramaActivity extends BaseMvpActivity<PlanLayoutOfPa
         if (mDisposableLoadPointAlarm != null) {
             mDisposableLoadPointAlarm.dispose();
         }
-        if (getSchemeAlarmJsons.getList() != null && getSchemeAlarmJsons.getList().size() > 0) {
-            MusicUtils.instance.playAlarm(getActivity());
-        } else {
+        if (getSchemeAlarmJsons == null || getSchemeAlarmJsons.getList() == null) {
             MusicUtils.instance.destroy();
+            return;
         }
         //加载告警点动画
         mDisposableLoadPointAlarm = Observable.interval(0, 100, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(aLong -> {
-                    if (mPointFrameLayout != null && mPointFrameLayout.isPreparePoint()) {
+                    if (mPointFrameLayout == null) {
+                        MusicUtils.instance.destroy();
+                        mDisposableLoadPointAlarm.dispose();
+                    }
+                    if (mPointFrameLayout.isPreparePoint()) {
+                        boolean isHasAlarmPoint = false;//是否有告警点
                         //停止所有告警点动画
                         mPointFrameLayout.stopAllPointAnimationAlarm();
                         for (GetSchemeAlarmJson.ListBean json : getSchemeAlarmJsons.getList()) {
-                            mPointFrameLayout.startPointAnimation(json.getMonitorID1(), PointFrameLayout.AnimationType.ALARM);
-                            mPointFrameLayout.startPointAnimation(json.getMonitorID2(), PointFrameLayout.AnimationType.ALARM);
-                            mPointFrameLayout.startPointAnimation(json.getMonitorID3(), PointFrameLayout.AnimationType.ALARM);
-                            mPointFrameLayout.startPointAnimation(json.getMonitorID4(), PointFrameLayout.AnimationType.ALARM);
+                            if (json.getStates().equals("0")) {//只有状态为0才是告警的
+                                mPointFrameLayout.startPointAnimation(json.getMonitorID1(), PointFrameLayout.AnimationType.ALARM);
+                                mPointFrameLayout.startPointAnimation(json.getMonitorID2(), PointFrameLayout.AnimationType.ALARM);
+                                mPointFrameLayout.startPointAnimation(json.getMonitorID3(), PointFrameLayout.AnimationType.ALARM);
+                                mPointFrameLayout.startPointAnimation(json.getMonitorID4(), PointFrameLayout.AnimationType.ALARM);
+                                isHasAlarmPoint = true;
+                            }
+                        }
+                        if (isHasAlarmPoint) {
+                            MusicUtils.instance.playAlarm(getActivity());
+                        } else {
+                            MusicUtils.instance.destroy();
                         }
                         mDisposableLoadPointAlarm.dispose();
                     }
@@ -542,7 +554,7 @@ public class PlanLayoutOfPanoramaActivity extends BaseMvpActivity<PlanLayoutOfPa
                 if (ivms_8700_bean.getCamFlowState().equals("15")) {
                     String type = ivms_8700_bean.getmType();
                     //2,5,8为互信、3中星微2.1、7中星微3.3、15海康8700
-                    if (type.equals("2") || type.equals("5") || type.equals("8") ) {
+                    if (type.equals("2") || type.equals("5") || type.equals("8")) {
                         JumpToUtils.toHuXinVideoActivity(getActivity(), ivms_8700_bean);
                     } else if (type.equals("15")) {//海康8700
                         JumpToUtils.toHKVideoActivity(getActivity(), ivms_8700_bean);

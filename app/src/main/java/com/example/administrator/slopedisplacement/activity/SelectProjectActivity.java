@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.OnClick;
 
-public class SelectProjectActivity extends BaseMvpActivity<SelectProjectPresenter> implements SelectProjectContact.View{
+public class SelectProjectActivity extends BaseMvpActivity<SelectProjectPresenter> implements SelectProjectContact.View {
     @BindView(R.id.etProjectName)
     EditText etProjectName;
     @BindView(R.id.ivProjectSearch)
@@ -34,10 +34,11 @@ public class SelectProjectActivity extends BaseMvpActivity<SelectProjectPresente
     @BindView(R.id.rvProject)
     RecyclerView rvProject;
     int pageIndex = 0;
-    int sumPage ;
+    int sumPage;
     SelectProjectAdapter selectProjectAdapter;
     ArrayList<ProjectBean.ListBean> dataList = new ArrayList<ProjectBean.ListBean>();
     Intent intent;
+
     @Override
     protected SelectProjectPresenter loadPresenter() {
         return new SelectProjectPresenter();
@@ -52,21 +53,22 @@ public class SelectProjectActivity extends BaseMvpActivity<SelectProjectPresente
     protected void initView() {
         setToolBar("项目选择");
 
-
-        rvProject.setLayoutManager(new LinearLayoutManager(this));
-        selectProjectAdapter = new SelectProjectAdapter(R.layout.item_select_project,dataList);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        rvProject.setLayoutManager(linearLayoutManager);
+        selectProjectAdapter = new SelectProjectAdapter(R.layout.item_select_project, dataList);
         rvProject.setAdapter(selectProjectAdapter);
-        rvProject.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL));
+        rvProject.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         selectProjectAdapter.setLoadMoreView(new CustomLoadMoreView());
         selectProjectAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
-            @Override public void onLoadMoreRequested() {
+            @Override
+            public void onLoadMoreRequested() {
                 rvProject.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        if(pageIndex > sumPage){
+                        if (pageIndex > sumPage) {
                             showToast("已经是最后一页了");
                             selectProjectAdapter.loadMoreEnd();
-                        }else {
+                        } else {
                             mPresenter.getVideoMonitorList(etProjectName.getText().toString(), pageIndex + "", "10", UserInfoPref.getUserId());
                         }
 
@@ -85,7 +87,7 @@ public class SelectProjectActivity extends BaseMvpActivity<SelectProjectPresente
                     intent.setClass(SelectProjectActivity.this, SelectDriverActivity.class);
                     intent.putExtra("Project", dataList.get(position));
                     startActivity(intent);
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -94,29 +96,28 @@ public class SelectProjectActivity extends BaseMvpActivity<SelectProjectPresente
     }
 
 
-
     @OnClick({R.id.ivProjectSearch})
-    void OnClick(View view){
-        switch (view.getId()){
+    void OnClick(View view) {
+        switch (view.getId()) {
             case R.id.ivProjectSearch:
                 dataList.clear();
                 selectProjectAdapter.notifyDataSetChanged();
-                mPresenter.getVideoMonitorList(etProjectName.getText().toString(),pageIndex+"","10", UserInfoPref.getUserId());
+                mPresenter.getVideoMonitorList(etProjectName.getText().toString(), pageIndex + "", "10", UserInfoPref.getUserId());
                 break;
         }
     }
 
     @Override
     public void onGetVideoMonitorListSuccess(ProjectBean projectBean) {
-        if(projectBean.getList().size() == 0){
+        if (projectBean.getList().size() == 0) {
             showToast("暂无数据！");
-        }else{
+        } else {
             showToast("数据加载成功！");
         }
         dataList.addAll(projectBean.getList());
         selectProjectAdapter.notifyDataSetChanged();
-        sumPage = (projectBean.getTotalCount()  +  10  - 1) / 10;
-        if(pageIndex<=sumPage){
+        sumPage = (projectBean.getTotalCount() + 10 - 1) / 10;
+        if (pageIndex <= sumPage) {
             pageIndex++;
         }
         selectProjectAdapter.loadMoreComplete();

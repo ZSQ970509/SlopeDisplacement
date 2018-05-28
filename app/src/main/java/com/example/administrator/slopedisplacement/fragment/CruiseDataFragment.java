@@ -18,6 +18,7 @@ import com.example.administrator.slopedisplacement.bean.json.GetSchemeMonitorLis
 import com.example.administrator.slopedisplacement.db.UserInfoPref;
 import com.example.administrator.slopedisplacement.mvp.contact.CruiseDataContact;
 import com.example.administrator.slopedisplacement.mvp.presenter.CruiseDataPresenter;
+import com.example.administrator.slopedisplacement.utils.FormatUtils;
 import com.example.administrator.slopedisplacement.utils.JumpToUtils;
 import com.example.administrator.slopedisplacement.utils.TimePickerUtils;
 import com.example.administrator.slopedisplacement.widget.CustomLoadMoreView;
@@ -120,7 +121,7 @@ public class CruiseDataFragment extends BaseMvpLazyFragment<CruiseDataPresenter>
             switch (view.getId()) {
                 case R.id.tvItemCruiseDataNowShift:
                     GetSchemeMonitorListLogJson.ListBean item = (GetSchemeMonitorListLogJson.ListBean) baseQuickAdapter.getItem(i);
-                    JumpToUtils.toShowMonitoringImgActivity(getActivity(), item.getPhoto1(), item.getPhoto2(), mPageSizeNum - i, item.getMonitorID(), item.getNowShift());
+                    JumpToUtils.toShowMonitoringImgActivity(getActivity(), item.getPhoto1(), item.getPhoto2(), mPageSizeNum - i, item.getMonitorID(), FormatUtils.round(item.getNowShift() * 1000));
                     break;
             }
         });

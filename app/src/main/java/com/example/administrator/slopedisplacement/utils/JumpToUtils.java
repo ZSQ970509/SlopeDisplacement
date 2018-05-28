@@ -54,9 +54,9 @@ public class JumpToUtils {
      * @param monitorID    监测点
      * @param nowShift     本次位移
      */
-    public static void toShowMonitoringImgActivity(Activity activity, String wideAngleImg, String longFocalImg, int recordID, int monitorID, double nowShift) {
+    public static void toShowMonitoringImgActivity(Activity activity, String wideAngleImg, String longFocalImg, int recordID, int monitorID, String nowShift) {
         Intent intent = new Intent(activity, ShowMonitoringImgActivity.class);
-        intent.putExtra(KEY_TITLE, "监测图查看(序号：" + recordID + "，监测点：" + monitorID + ") 本次位移：" + (int) (nowShift * 100) + "mm");
+        intent.putExtra(KEY_TITLE, "监测图查看(序号：" + recordID + "，监测点：" + monitorID + ") 本次位移：" + nowShift + "mm");
         intent.putExtra(KEY_WIDE_ANGLE_IMG, wideAngleImg);
         intent.putExtra(KEY_LONG_FOCAL_IMG, longFocalImg);
         activity.startActivity(intent);
