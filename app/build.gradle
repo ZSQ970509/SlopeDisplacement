@@ -121,5 +121,6 @@ dependencies {
     compile 'com.github.PhilJay:MPAndroidChart:v3.0.3'
     testCompile 'junit:junit:4.12'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
+    compile 'org.xutils:xutils:3.5.0'
 //    compile "de.mrmaffen:vlc-android-sdk:2.0.6"
 }

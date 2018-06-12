@@ -17,18 +17,11 @@ import io.reactivex.functions.Consumer;
 
 public class PermissionsUtils {
     /**
-     * 蓝牙模块需要的权限
-     */
-    public static final String[] PERMISSION_BLUETOOTH = {
-            Manifest.permission.BLUETOOTH,
-            Manifest.permission.BLUETOOTH_ADMIN,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION};
-    /**
      * 个推推送需要的权限
      */
     public static final String[] PERMISSION_GETUI = {
             Manifest.permission.READ_PHONE_STATE,//读写 sd card 权限非常重要
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.BLUETOOTH_ADMIN};//read phone state用于获取 imei 设备信息
     /**
      * 申请权限(多个申请结果会合并成一个，即PermissionCall只会被调用一次)

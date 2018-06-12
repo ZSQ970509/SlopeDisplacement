@@ -9,6 +9,7 @@
     path：需要临时授权访问的路径（.代表所有路径）
     name：就是你给这个访问路径起个名字
     -->
+    <!--<external-files-path name="bga_upgrade_apk" path="upgrade_apk" />-->
     <external-path
         name="cache_download"
         path="." />

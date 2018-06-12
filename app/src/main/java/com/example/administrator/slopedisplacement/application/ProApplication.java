@@ -22,6 +22,8 @@ import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.BuildConfig;
 import com.orhanobut.logger.Logger;
 
+import org.xutils.x;
+
 
 /**
  * Created by GaoSheng on 2016/9/13.
@@ -63,7 +65,8 @@ public class ProApplication extends MultiDexApplication {
         TalkClientSDK.initLib();
         // SDK初始化
         VMSNetSDK.init(this);
-
+        x.Ext.init(this);//Xutils初始化,这一步之后, 我们就可以在任何地方使用x.app()来获取Application的实例了.
+        x.Ext.setDebug(true); // 是否输出debug日志
     }
 
     public static ProApplication getIns() {

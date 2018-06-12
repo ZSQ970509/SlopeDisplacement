@@ -25,27 +25,27 @@ public class WelcomeActivity extends BaseActivity {
 
     @Override
     protected void initView() {
-        if (!PhoneSystemUtils.isMIUI()) {
-            PermissionsUtils.requestPermissions(this, PermissionsUtils.PERMISSION_GETUI, new PermissionsUtils.PermissionCall() {
-                @Override
-                public void onSuccess() {
+        PermissionsUtils.requestPermissions(this, PermissionsUtils.PERMISSION_GETUI, new PermissionsUtils.PermissionCall() {
+            @Override
+            public void onSuccess() {
+                if (!PhoneSystemUtils.isMIUI()) {
                     PushGeTuiUtil.init(getActivity());
                     //延迟两秒后跳转
                     Observable.timer(3, TimeUnit.SECONDS)
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(l -> toMainActivity());
+                } else {
+                    Observable.timer(1500, TimeUnit.MILLISECONDS)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(l -> toMainActivity());
                 }
+            }
+            @Override
+            public void onFail() {
+                showToast("权限被拒绝，无法启动推送！");
+            }
+        });
 
-                @Override
-                public void onFail() {
-                    showToast("权限被拒绝，无法启动推送！");
-                }
-            });
-        } else {
-            Observable.timer(3, TimeUnit.SECONDS)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(l -> toMainActivity());
-        }
     }
 
     private void toMainActivity() {

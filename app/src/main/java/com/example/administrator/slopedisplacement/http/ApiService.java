@@ -15,7 +15,7 @@ import com.example.administrator.slopedisplacement.bean.json.GetSchemeFixedChart
 import com.example.administrator.slopedisplacement.bean.json.GetSchemeFixedListLogJson;
 import com.example.administrator.slopedisplacement.bean.json.GetSchemeMonitorListLogJson;
 import com.example.administrator.slopedisplacement.bean.json.GetSchemeMonitorLogJson;
-import com.example.administrator.slopedisplacement.mvp.model.CruiseCurveAreaMapModel;
+import com.example.administrator.slopedisplacement.bean.json.UpdateVersionJson;
 import com.example.administrator.slopedisplacement.url.UrlHelper;
 
 import java.util.List;
@@ -23,7 +23,10 @@ import java.util.List;
 import io.reactivex.Observable;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 
 /**
@@ -41,6 +44,9 @@ public interface ApiService {
     @FormUrlEncoded
     @POST(UrlHelper.API + "UpdateLoginMessage")
     Observable<HttpResponse> updateLoginMessage(@Field("userName") String userName, @Field("clentid") String clentid, @Field("uid") String uid);
+
+    @GET(UrlHelper.API_UPDATE + "update")
+    Observable<List<UpdateVersionJson>> updatedVersion(@Query("type") String packageName);
 
     @FormUrlEncoded
     @POST(UrlHelper.API + "GetVideoMonitorList")
@@ -116,6 +122,7 @@ public interface ApiService {
     @FormUrlEncoded
     @POST(UrlHelper.API + "GetNewSchemeMonitorChartsByDateTop ")
     Observable<HttpResponse<List<AreaMapBean>>> getNewSchemeMonitorChartsByDateTop(@Field("schemeID") String schemeID, @Field("areaID") String areaID, @Field("monitorID") String monitorID, @Field("timeType") int timeType, @Field("selDate") String selDate, @Field("uid") String uid);
+
     //定点折线图
     @FormUrlEncoded
     @POST(UrlHelper.API + "GetSchemeFixedChartsByDateTop ")

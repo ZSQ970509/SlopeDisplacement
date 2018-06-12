@@ -25,5 +25,10 @@ public class LoginModel implements IModel {
                 .updateLoginMessage(userName, clentid,uid)
                 .compose(NetTransformer.compose());
     }
-
+    public Observable updatedVersion(String packageName) {
+        return RetrofitUtils.Instance
+                .getApiService()
+                .updatedVersion(packageName)
+                .compose(NetTransformer.compose());
+    }
 }

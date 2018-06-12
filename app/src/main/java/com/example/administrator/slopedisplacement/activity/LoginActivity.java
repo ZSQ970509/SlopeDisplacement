@@ -1,6 +1,7 @@
 package com.example.administrator.slopedisplacement.activity;
 
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
@@ -16,14 +17,21 @@ import com.example.administrator.slopedisplacement.application.ProApplication;
 import com.example.administrator.slopedisplacement.base.BaseMvpActivity;
 import com.example.administrator.slopedisplacement.bean.LoginBean;
 import com.example.administrator.slopedisplacement.bean.UpdateBean;
+import com.example.administrator.slopedisplacement.bean.json.UpdateVersionJson;
 import com.example.administrator.slopedisplacement.db.UserInfoPref;
 import com.example.administrator.slopedisplacement.http.HttpResponse;
 import com.example.administrator.slopedisplacement.mvp.contact.LoginContact;
 import com.example.administrator.slopedisplacement.mvp.presenter.LoginPresenter;
 import com.example.administrator.slopedisplacement.type.LoginStateEnum;
+import com.example.administrator.slopedisplacement.utils.L;
 import com.example.administrator.slopedisplacement.utils.PhoneSystemUtils;
+import com.example.administrator.slopedisplacement.widget.CommonDialog;
 import com.orhanobut.logger.Logger;
 import com.xiaomi.mipush.sdk.MiPushClient;
+
+import org.xutils.common.Callback;
+
+import java.io.File;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -52,7 +60,7 @@ public class LoginActivity extends BaseMvpActivity<LoginPresenter> implements Lo
 
     @Override
     protected void initView() {
-
+        mPresenter.updatedVersion();
     }
 
     @Override
@@ -75,8 +83,8 @@ public class LoginActivity extends BaseMvpActivity<LoginPresenter> implements Lo
             //小米推送注册别名和用户账号
             MiPushClient.setAlias(ProApplication.getInstance(), UserInfoPref.getUserId(), "");
             MiPushClient.setUserAccount(ProApplication.getInstance(), UserInfoPref.getUserId(), "");
-            toSelectProAc();
-            //mPresenter.updateLoginMessage(etUserName.getText().toString(), UserInfoPref.getGeTuiClientId());
+//            toSelectProAc();
+            mPresenter.updateLoginMessage(etUserName.getText().toString(), UserInfoPref.getGeTuiClientId(), UserInfoPref.getUserId());
         } else {
             mPresenter.updateLoginMessage(etUserName.getText().toString(), UserInfoPref.getGeTuiClientId(), UserInfoPref.getUserId());
         }
@@ -103,12 +111,35 @@ public class LoginActivity extends BaseMvpActivity<LoginPresenter> implements Lo
         showToast(msg);
     }
 
+    @Override
+    public void onUpdatedVersionSuccess(UpdateVersionJson updateVersionJson) {
+        if (updateVersionJson.getUpdateVersionCode() > PhoneSystemUtils.getVersionCode()) {
+            if (updateVersionJson.getUpdateForceUpdate().equals("1")) {
+                updatedVersion(updateVersionJson.getUpdateDownLoadUrl());
+            } else {
+                CommonDialog commonDialog = new CommonDialog(getActivity());
+                commonDialog.setMsg(updateVersionJson.getUpdateLogMsg())
+                        .setTitle("是否更新版本")
+                        .setRightBtnText("更新")
+                        .setLeftBtnText("取消")
+                        .setRightClick(v -> updatedVersion(updateVersionJson.getUpdateDownLoadUrl()));
+            }
+        }
+    }
+
+    @Override
+    public void onUpdatedVersionFail(String msg) {
+        showToast(msg);
+    }
+
+    private void updatedVersion(String apkUrl) {
+        PhoneSystemUtils.downloadFile(getActivity(), apkUrl);
+    }
 
     @OnClick({R.id.ivLogin})
     void OnClick(View view) {
         switch (view.getId()) {
             case R.id.ivLogin:
-//                startActivity(new Intent(getActivity(), RtspNewVideoActivity.class));
                 if (etUserName.getText().toString().isEmpty()) {
                     showToast("用户名不能为空");
                     return;
