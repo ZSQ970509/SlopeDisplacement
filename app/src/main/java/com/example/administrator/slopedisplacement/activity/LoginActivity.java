@@ -122,7 +122,8 @@ public class LoginActivity extends BaseMvpActivity<LoginPresenter> implements Lo
                         .setTitle("是否更新版本")
                         .setRightBtnText("更新")
                         .setLeftBtnText("取消")
-                        .setRightClick(v -> updatedVersion(updateVersionJson.getUpdateDownLoadUrl()));
+                        .setRightClick(v -> updatedVersion(updateVersionJson.getUpdateDownLoadUrl()))
+                        .show();
             }
         }
     }

@@ -6,7 +6,8 @@ package com.example.administrator.slopedisplacement.url;
  */
 
 public class UrlHelper {
-        public static String BASE_URL = "http://api.jsqqy.com/";
+    public static String BASE_URL = "http://10.1.3.201:42174/";//世标电脑
+//        public static String BASE_URL = "http://api.jsqqy.com/";
 //    public static String BASE_URL = "http://192.168.1.186:5066/";
     public static final String API = "OpenInterface/PanoramaHandler.ashx?action=";
     public static final String API_UPDATE = "api.ashx?action=";//版本更新的api
